@@ -1,0 +1,25 @@
+@on-reset
+|ffe0   a0 01 0d   ( ;on-console )
+|ffe3   80 10      ( .Console/vector )
+|ffe5   37         ( DEO2 )
+|ffe6   00         ( BRK )
+
+@on-quote
+|ffe7   80 12      ( .Console/read )
+|ffe9   16         ( DEI )
+|ffea   40 ff f3   ( !on-reset )
+
+@on-console
+|ffed   80 12      ( .Console/read )
+|ffef   16         ( DEI )
+|fff0   20 00 07   ( ?λ00 )
+|fff3   a0 01 07   ( ;on-quote )
+|fff6   80 10      ( .Console/vector )
+|fff8   37         ( DEO2 )
+|fff9   00         ( BRK )
+
+@λ00
+|fffa   80 00      ( #00 )
+|fffc   13         ( STR )
+|fffd   00 00      ( $1 BRK )
+|0000

@@ -1,0 +1,7 @@
+@teleport ( addr* len* )
+    #001f #0000 #0100 #0000 #ffe0 mcpyr    ( copy to top memory )
+    #ffed #ffe1 STA2    ( patch ;on-console )
+    #fff4 #fff4 STA2    ( patch ;on-quote )
+    #ffe0 JMP2
+
+@mcpyr
