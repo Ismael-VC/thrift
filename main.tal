@@ -1,0 +1,10 @@
+@:on-reset ( -> )
+	( :|0120 )
+	[ LIT LIT2 ] :asm/write
+    [ LIT "* ] :asm/write
+    [ LIT -Console/error ] :asm/write
+    [ LIT DEO ] :asm/write
+    [ LIT JMP2r ] :asm/write
+
+    [ :LIT2 0120 ] :JSR2
+    BRK

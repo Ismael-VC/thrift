@@ -1,0 +1,95 @@
+( lavish.tal )
+|0e @System/debug  $1
+|10 @Console/vector $2 &read $1 &pad $5 &write $1 &error $1
+
+( thrift instructions )
+%:quot { 00 }
+%:unqt { 01 }
+
+%:console/write ( -- ) { :quot 18 }
+%:system/debug  ( -- ) { :quot 0e }
+%:emit ( :byte -- ) { :console/write :quot DEO :unqt }
+%:dbg  ( -- ) { :quot 01 :system/debug :quot DEO :unqt }
+%:newline ( -- ) { :quot 0a :emit }
+
+%DBG ( -- ) { [ LIT2 01 -System/debug ] DEO }
+%EMIT ( byte -- :byte ) { .Console/write DEO }
+
+|100
+@on-reset ( -> ) ;on-console .Console/vector DEO2 !:on-reset
+@on-console ( -> ) .Console/read DEI BRK
+
+( remote pseudo opcodes )
+@:OPC ( op -- )
+    ,/op STR
+    ;/start ;/end !:send
+
+    &start [
+        :quot &op $1 :unqt
+    ] &end
+
+@:BRK  [ LIT BRK ]  !:OPC
+@:LDA  [ LIT LDA ]  !:OPC
+@:STA  [ LIT STA ]  !:OPC
+@:DEO  [ LIT DEO ]  !:OPC
+@:JSR2 [ LIT JSR2 ] !:OPC
+
+@:LIT ( -- :byte )
+    STH2kr LDA INC2r
+    ,/byte STR
+    ;/start ;/end !:send
+
+    &start [
+         :quot &byte $1
+    ] &end
+
+@:LIT2 ( -- :short )
+    STH2kr LDA2 INC2r INC2r
+    ,/lo-byte STR ,/hi-byte STR
+    ;/start ;/end !:send
+
+    &start [
+         :quot &hi-byte $1 :quot &lo-byte $1
+    ] &end
+
+( remote library )
+@:EMIT ( :byte -- byte ) [ :LIT -Console/write ] :DEO JMP2r
+@:DBG ( -- ) [ :LIT2 01 -System/debug ] :DEO JMP2r
+
+@:asm/reset ( -- ) #0120 ( >> )
+@:asm/set ( addr* -- ) ,/pointer STR2 JMP2r
+
+@:asm/write ( byte -- )
+    [ LIT2 &pointer 0120 ] INC2k ,/pointer STR2
+    ,/lo-byte STR ,/hi-byte STR ,/byte STR
+    ;/start ;/end !:send
+
+    &start [
+        :quot &byte $1 :quot &hi-byte $1 :quot &lo-byte $1 :quot 15 ( STA ) :unqt
+    ] &end
+
+@:asm/cpy-blk ( start* end* -- )
+    SWP2
+    &cpy-blk-loop
+        LDAk /write
+        INC2 GTH2k ?/cpy-blk-loop
+    POP2 POP2
+    JMP2r
+
+@:asm/cpy-len ( len* start* -- )
+    STH2 ADD2 STH2r
+    &cpy-len-loop
+        LDAk /write
+        INC2 GTH2k ?/cpy-len-loop
+    POP2 POP2
+    JMP2r
+
+@:send ( start* end* -- )
+    SWP2
+    &loop
+        LDAk EMIT
+        INC2 GTH2k ?/loop
+    POP2 POP2
+    JMP2r
+
+~main.tal
