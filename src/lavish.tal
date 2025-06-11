@@ -1,15 +1,16 @@
-( lavish.tal )
-%DBG ( -- ) { [ LIT2 01 -System/debug ] DEO }
-
+( # Lavish )
 |0e @System/debug  $1
 |10 @Console/vector $2 &read $1 &pad $5 &write $1 &error $1
+
 |100 @on-reset ( -> ) ;on-console .Console/vector DEO2 !:on-reset
 
-( thrift instructions )
+
+( ## Thrift Instructions )
 %:quot { 00 }
 %:unqt { 01 }
 
-( remote pseudo opcodes )
+
+( ## Remote Pseudo Opcodes )
 @:OPC ( op -- )
     ,/op STR
     ;/start ;/end !:asm/send-blk
@@ -17,7 +18,8 @@
         :quot &op $1 :unqt
     ] &end
 
-( literals )
+
+( ### Literal Opcodes )
 @:BRK [ LIT BRK ]    !:OPC
 @:LIT ( -- :byte )
     STH2kr LDA INC2r
@@ -37,6 +39,7 @@
 @:JMI
 @:JSI
 
+( ### Remaining Opcodes )
 @:INC    [ LIT INC ]    !:OPC        @:INCk   [ LIT INCk ]   !:OPC
 @:POP    [ LIT POP ]    !:OPC        @:POPk   JMP2r
 @:NIP    [ LIT NIP ]    !:OPC        @:NIPk   JMP2r
@@ -162,7 +165,8 @@
 @:EOR2r  [ LIT EOR2r ]  !:OPC        @:EOR2kr [ LIT EOR2kr ] !:OPC
 @:SFT2r  [ LIT SFT2r ]  !:OPC        @:SFT2kr [ LIT SFT2kr ] !:OPC
 
-( remote library )
+
+( ## Remote Library )
 %:emit ( :byte -- ) { :quot -Console/write :quot DEO :unqt }
 %:dbg ( -- ) { :quot 01 :quot -System/debug :quot DEO :unqt }
 %:eol ( -- ) { :quot 0a :emit }
@@ -193,8 +197,13 @@
         :quot &byte $1 :quot &hi-byte $1 :quot &lo-byte $1 :quot STA :unqt
     ] &end
 
-( local library )
+
+( ## Local Library )
+%DBG ( -- ) { [ LIT2 01 -System/debug ] DEO }
+
 @on-console ( -> ) .Console/read DEI BRK
 @EMIT ( byte -- :byte ) .Console/write DEO JMP2r
+@EOL ( -- ) [ LIT2 0a -Console/write ] DEO JMP2r
+
 
 ~main.tal
