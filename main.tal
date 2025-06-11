@@ -4,20 +4,19 @@
     | If n is divisible by both, print "fizzbuzz"
     | Else, print the number )
 
-@:on-reset ( -> )
-    ( >> )
+@:on-reset ( -> ) :fizzbuzz BRK
 
-@fizzbuzz ( -> )
-    #1e00
-    &>loop ( length i -- )
-        DUP fizz OVR buzz ORA ?{ DUP <dec> }
-        #0a18 DEO
-        INC GTHk ?&>loop
-    POP2 BRK
+@:fizzbuzz ( -- )
+    [ :LIT2 1e00 ] :DBG
+    &>loop ( :length :i -- )
+        :DUP :fizz :OVR :buzz :ORA :EMIT ?{ :DUP :<dec> }
+        [ :LIT2 0a18 ] :DEO
+        :INC :GTHk :EMIT ?&>loop
+    :POP2 JMP2r
 
-@fizz ( n -- ) #03 DIVk MUL SUB ?{ #01 ;Dict/fizz !<str> } #00 JMP2r
-@buzz ( n -- ) #05 DIVk MUL SUB ?{ #01 ;Dict/buzz !<str> } #00 JMP2r
-@<dec> ( n -- ) DUP #0a DIV /d #0a DIVk MUL SUB &d #30 ADD #18 DEO JMP2r
-@<str> ( s* -- ) LDAk #18 DEO INC2 LDAk ?<str> POP2 JMP2r
-@Dict &fizz "Fizz $1 &buzz "Buzz $1
+@:fizz ( :n -- ) [ :LIT 03 ] :DIVk :MUL :SUB :EMIT ?{ [ :LIT 01 ] ;msgs/fizz !:<str> } [ :LIT 00 ] JMP2r
+@:buzz ( :n -- ) [ :LIT 05 ] :DIVk :MUL :SUB :EMIT ?{ [ :LIT 01 ] ;msgs/buzz !:<str> } [ :LIT 00 ] JMP2r
+@:<dec> ( :n -- ) :DUP [ :LIT 0a ] :DIV /d [ :LIT 0a ] :DIVk :MUL :SUB &d [ :LIT 30 ] :ADD [ :LIT 18 ] :DEO JMP2r
+@:<str> ( s* -- ) LDAk :EMIT [ :LIT 18 ] :DEO INC2 LDAk ?:<str> POP2 JMP2r
+@msgs &fizz "Fizz $1 &buzz "Buzz $1
 
