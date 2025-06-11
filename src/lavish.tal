@@ -6,8 +6,8 @@
 %:quot { 00 }
 %:unqt { 01 }
 
-%:console/write ( -- ) { :quot 18 }
-%:system/debug  ( -- ) { :quot 0e }
+%:console/write ( -- ) { :quot -Console/write }
+%:system/debug  ( -- ) { :quot -System/debug }
 %:emit ( :byte -- ) { :console/write :quot DEO :unqt }
 %:dbg  ( -- ) { :quot 01 :system/debug :quot DEO :unqt }
 %:newline ( -- ) { :quot 0a :emit }
@@ -26,15 +26,257 @@
         :quot &op $1 :unqt
     ] &end
 
-@:BRK  [ LIT BRK ]  !:OPC
-@:INC  [ LIT INC ]  !:OPC
-@:POP  [ LIT POP ]  !:OPC
-@:NIP  [ LIT NIP ]  !:OPC
-@:SWP  [ LIT SWP ]  !:OPC
-@:ROT  [ LIT ROT ]  !:OPC
-@:DUP  [ LIT DUP ]  !:OPC
-@:OVR  [ LIT OVR ]  !:OPC
-
+@:BRK    [ LIT BRK ]    !:OPC
+@:INC    [ LIT INC ]    !:OPC
+@:POP    [ LIT POP ]    !:OPC
+@:NIP    [ LIT NIP ]    !:OPC
+@:SWP    [ LIT SWP ]    !:OPC
+@:ROT    [ LIT ROT ]    !:OPC
+@:DUP    [ LIT DUP ]    !:OPC
+@:OVR    [ LIT OVR ]    !:OPC
+@:EQU    [ LIT EQU ]    !:OPC
+@:NEQ    [ LIT NEQ ]    !:OPC
+@:GTH    [ LIT GTH ]    !:OPC
+@:LTH    [ LIT LTH ]    !:OPC
+@:JMP    [ LIT JMP ]    !:OPC
+@:JCN    [ LIT JCN ]    !:OPC
+@:JSR    [ LIT JSR ]    !:OPC
+@:STH    [ LIT STH ]    !:OPC
+@:LDZ    [ LIT LDZ ]    !:OPC
+@:STZ    [ LIT STZ ]    !:OPC
+@:LDR    [ LIT LDR ]    !:OPC
+@:STR    [ LIT STR ]    !:OPC
+@:LDA    [ LIT LDA ]    !:OPC
+@:STA    [ LIT STA ]    !:OPC
+@:DEI    [ LIT DEI ]    !:OPC
+@:DEO    [ LIT DEO ]    !:OPC
+@:ADD    [ LIT ADD ]    !:OPC
+@:SUB    [ LIT SUB ]    !:OPC
+@:MUL    [ LIT MUL ]    !:OPC
+@:DIV    [ LIT DIV ]    !:OPC
+@:AND    [ LIT AND ]    !:OPC
+@:ORA    [ LIT ORA ]    !:OPC
+@:EOR    [ LIT EOR ]    !:OPC
+@:SFT    [ LIT SFT ]    !:OPC
+@:INC2   [ LIT INC2 ]   !:OPC
+@:POP2   [ LIT POP2 ]   !:OPC
+@:NIP2   [ LIT NIP2 ]   !:OPC
+@:SWP2   [ LIT SWP2 ]   !:OPC
+@:ROT2   [ LIT ROT2 ]   !:OPC
+@:DUP2   [ LIT DUP2 ]   !:OPC
+@:OVR2   [ LIT OVR2 ]   !:OPC
+@:EQU2   [ LIT EQU2 ]   !:OPC
+@:NEQ2   [ LIT NEQ2 ]   !:OPC
+@:GTH2   [ LIT GTH2 ]   !:OPC
+@:LTH2   [ LIT LTH2 ]   !:OPC
+@:JMP2   [ LIT JMP2 ]   !:OPC
+@:JCN2   [ LIT JCN2 ]   !:OPC
+@:JSR2   [ LIT JSR2 ]   !:OPC
+@:STH2   [ LIT STH2 ]   !:OPC
+@:LDZ2   [ LIT LDZ2 ]   !:OPC
+@:STZ2   [ LIT STZ2 ]   !:OPC
+@:LDR2   [ LIT LDR2 ]   !:OPC
+@:STR2   [ LIT STR2 ]   !:OPC
+@:LDA2   [ LIT LDA2 ]   !:OPC
+@:STA2   [ LIT STA2 ]   !:OPC
+@:DEI2   [ LIT DEI2 ]   !:OPC
+@:DEO2   [ LIT DEO2 ]   !:OPC
+@:ADD2   [ LIT ADD2 ]   !:OPC
+@:SUB2   [ LIT SUB2 ]   !:OPC
+@:MUL2   [ LIT MUL2 ]   !:OPC
+@:DIV2   [ LIT DIV2 ]   !:OPC
+@:AND2   [ LIT AND2 ]   !:OPC
+@:ORA2   [ LIT ORA2 ]   !:OPC
+@:EOR2   [ LIT EOR2 ]   !:OPC
+@:SFT2   [ LIT SFT2 ]   !:OPC
+@:INCr   [ LIT INCr ]   !:OPC
+@:POPr   [ LIT POPr ]   !:OPC
+@:NIPr   [ LIT NIPr ]   !:OPC
+@:SWPr   [ LIT SWPr ]   !:OPC
+@:ROTr   [ LIT ROTr ]   !:OPC
+@:DUPr   [ LIT DUPr ]   !:OPC
+@:OVRr   [ LIT OVRr ]   !:OPC
+@:EQUr   [ LIT EQUr ]   !:OPC
+@:NEQr   [ LIT NEQr ]   !:OPC
+@:GTHr   [ LIT GTHr ]   !:OPC
+@:LTHr   [ LIT LTHr ]   !:OPC
+@:JMPr   [ LIT JMPr ]   !:OPC
+@:JCNr   [ LIT JCNr ]   !:OPC
+@:JSRr   [ LIT JSRr ]   !:OPC
+@:STHr   [ LIT STHr ]   !:OPC
+@:LDZr   [ LIT LDZr ]   !:OPC
+@:STZr   [ LIT STZr ]   !:OPC
+@:LDRr   [ LIT LDRr ]   !:OPC
+@:STRr   [ LIT STRr ]   !:OPC
+@:LDAr   [ LIT LDAr ]   !:OPC
+@:STAr   [ LIT STAr ]   !:OPC
+@:DEIr   [ LIT DEIr ]   !:OPC
+@:DEOr   [ LIT DEOr ]   !:OPC
+@:ADDr   [ LIT ADDr ]   !:OPC
+@:SUBr   [ LIT SUBr ]   !:OPC
+@:MULr   [ LIT MULr ]   !:OPC
+@:DIVr   [ LIT DIVr ]   !:OPC
+@:ANDr   [ LIT ANDr ]   !:OPC
+@:ORAr   [ LIT ORAr ]   !:OPC
+@:EORr   [ LIT EORr ]   !:OPC
+@:SFTr   [ LIT SFTr ]   !:OPC
+@:INC2r  [ LIT INC2r ]  !:OPC
+@:POP2r  [ LIT POP2r ]  !:OPC
+@:NIP2r  [ LIT NIP2r ]  !:OPC
+@:SWP2r  [ LIT SWP2r ]  !:OPC
+@:ROT2r  [ LIT ROT2r ]  !:OPC
+@:DUP2r  [ LIT DUP2r ]  !:OPC
+@:OVR2r  [ LIT OVR2r ]  !:OPC
+@:EQU2r  [ LIT EQU2r ]  !:OPC
+@:NEQ2r  [ LIT NEQ2r ]  !:OPC
+@:GTH2r  [ LIT GTH2r ]  !:OPC
+@:LTH2r  [ LIT LTH2r ]  !:OPC
+@:JMP2r  [ LIT JMP2r ]  !:OPC
+@:JCN2r  [ LIT JCN2r ]  !:OPC
+@:JSR2r  [ LIT JSR2r ]  !:OPC
+@:STH2r  [ LIT STH2r ]  !:OPC
+@:LDZ2r  [ LIT LDZ2r ]  !:OPC
+@:STZ2r  [ LIT STZ2r ]  !:OPC
+@:LDR2r  [ LIT LDR2r ]  !:OPC
+@:STR2r  [ LIT STR2r ]  !:OPC
+@:LDA2r  [ LIT LDA2r ]  !:OPC
+@:STA2r  [ LIT STA2r ]  !:OPC
+@:DEI2r  [ LIT DEI2r ]  !:OPC
+@:DEO2r  [ LIT DEO2r ]  !:OPC
+@:ADD2r  [ LIT ADD2r ]  !:OPC
+@:SUB2r  [ LIT SUB2r ]  !:OPC
+@:MUL2r  [ LIT MUL2r ]  !:OPC
+@:DIV2r  [ LIT DIV2r ]  !:OPC
+@:AND2r  [ LIT AND2r ]  !:OPC
+@:ORA2r  [ LIT ORA2r ]  !:OPC
+@:EOR2r  [ LIT EOR2r ]  !:OPC
+@:SFT2r  [ LIT SFT2r ]  !:OPC
+@:INCk   [ LIT INCk ]   !:OPC
+@:POPk   [ LIT POPk ]   !:OPC
+@:NIPk   [ LIT NIPk ]   !:OPC
+@:SWPk   [ LIT SWPk ]   !:OPC
+@:ROTk   [ LIT ROTk ]   !:OPC
+@:DUPk   [ LIT DUPk ]   !:OPC
+@:OVRk   [ LIT OVRk ]   !:OPC
+@:EQUk   [ LIT EQUk ]   !:OPC
+@:NEQk   [ LIT NEQk ]   !:OPC
+@:GTHk   [ LIT GTHk ]   !:OPC
+@:LTHk   [ LIT LTHk ]   !:OPC
+@:JMPk   [ LIT JMPk ]   !:OPC
+@:JCNk   [ LIT JCNk ]   !:OPC
+@:JSRk   [ LIT JSRk ]   !:OPC
+@:STHk   [ LIT STHk ]   !:OPC
+@:LDZk   [ LIT LDZk ]   !:OPC
+@:STZk   [ LIT STZk ]   !:OPC
+@:LDRk   [ LIT LDRk ]   !:OPC
+@:STRk   [ LIT STRk ]   !:OPC
+@:LDAk   [ LIT LDAk ]   !:OPC
+@:STAk   [ LIT STAk ]   !:OPC
+@:DEIk   [ LIT DEIk ]   !:OPC
+@:DEOk   [ LIT DEOk ]   !:OPC
+@:ADDk   [ LIT ADDk ]   !:OPC
+@:SUBk   [ LIT SUBk ]   !:OPC
+@:MULk   [ LIT MULk ]   !:OPC
+@:DIVk   [ LIT DIVk ]   !:OPC
+@:ANDk   [ LIT ANDk ]   !:OPC
+@:ORAk   [ LIT ORAk ]   !:OPC
+@:EORk   [ LIT EORk ]   !:OPC
+@:SFTk   [ LIT SFTk ]   !:OPC
+@:INC2k  [ LIT INC2k ]  !:OPC
+@:POP2k  [ LIT POP2k ]  !:OPC
+@:NIP2k  [ LIT NIP2k ]  !:OPC
+@:SWP2k  [ LIT SWP2k ]  !:OPC
+@:ROT2k  [ LIT ROT2k ]  !:OPC
+@:DUP2k  [ LIT DUP2k ]  !:OPC
+@:OVR2k  [ LIT OVR2k ]  !:OPC
+@:EQU2k  [ LIT EQU2k ]  !:OPC
+@:NEQ2k  [ LIT NEQ2k ]  !:OPC
+@:GTH2k  [ LIT GTH2k ]  !:OPC
+@:LTH2k  [ LIT LTH2k ]  !:OPC
+@:JMP2k  [ LIT JMP2k ]  !:OPC
+@:JCN2k  [ LIT JCN2k ]  !:OPC
+@:JSR2k  [ LIT JSR2k ]  !:OPC
+@:STH2k  [ LIT STH2k ]  !:OPC
+@:LDZ2k  [ LIT LDZ2k ]  !:OPC
+@:STZ2k  [ LIT STZ2k ]  !:OPC
+@:LDR2k  [ LIT LDR2k ]  !:OPC
+@:STR2k  [ LIT STR2k ]  !:OPC
+@:LDA2k  [ LIT LDA2k ]  !:OPC
+@:STA2k  [ LIT STA2k ]  !:OPC
+@:DEI2k  [ LIT DEI2k ]  !:OPC
+@:DEO2k  [ LIT DEO2k ]  !:OPC
+@:ADD2k  [ LIT ADD2k ]  !:OPC
+@:SUB2k  [ LIT SUB2k ]  !:OPC
+@:MUL2k  [ LIT MUL2k ]  !:OPC
+@:DIV2k  [ LIT DIV2k ]  !:OPC
+@:AND2k  [ LIT AND2k ]  !:OPC
+@:ORA2k  [ LIT ORA2k ]  !:OPC
+@:EOR2k  [ LIT EOR2k ]  !:OPC
+@:SFT2k  [ LIT SFT2k ]  !:OPC
+@:LITr   [ LIT LITr ]   !:OPC
+@:INCkr  [ LIT INCkr ]  !:OPC
+@:POPkr  [ LIT POPkr ]  !:OPC
+@:NIPkr  [ LIT NIPkr ]  !:OPC
+@:SWPkr  [ LIT SWPkr ]  !:OPC
+@:ROTkr  [ LIT ROTkr ]  !:OPC
+@:DUPkr  [ LIT DUPkr ]  !:OPC
+@:OVRkr  [ LIT OVRkr ]  !:OPC
+@:EQUkr  [ LIT EQUkr ]  !:OPC
+@:NEQkr  [ LIT NEQkr ]  !:OPC
+@:GTHkr  [ LIT GTHkr ]  !:OPC
+@:LTHkr  [ LIT LTHkr ]  !:OPC
+@:JMPkr  [ LIT JMPkr ]  !:OPC
+@:JCNkr  [ LIT JCNkr ]  !:OPC
+@:JSRkr  [ LIT JSRkr ]  !:OPC
+@:STHkr  [ LIT STHkr ]  !:OPC
+@:LDZkr  [ LIT LDZkr ]  !:OPC
+@:STZkr  [ LIT STZkr ]  !:OPC
+@:LDRkr  [ LIT LDRkr ]  !:OPC
+@:STRkr  [ LIT STRkr ]  !:OPC
+@:LDAkr  [ LIT LDAkr ]  !:OPC
+@:STAkr  [ LIT STAkr ]  !:OPC
+@:DEIkr  [ LIT DEIkr ]  !:OPC
+@:DEOkr  [ LIT DEOkr ]  !:OPC
+@:ADDkr  [ LIT ADDkr ]  !:OPC
+@:SUBkr  [ LIT SUBkr ]  !:OPC
+@:MULkr  [ LIT MULkr ]  !:OPC
+@:DIVkr  [ LIT DIVkr ]  !:OPC
+@:ANDkr  [ LIT ANDkr ]  !:OPC
+@:ORAkr  [ LIT ORAkr ]  !:OPC
+@:EORkr  [ LIT EORkr ]  !:OPC
+@:SFTkr  [ LIT SFTkr ]  !:OPC
+@:LIT2r  [ LIT LIT2r ]  !:OPC
+@:INC2kr [ LIT INC2kr ] !:OPC
+@:POP2kr [ LIT POP2kr ] !:OPC
+@:NIP2kr [ LIT NIP2kr ] !:OPC
+@:SWP2kr [ LIT SWP2kr ] !:OPC
+@:ROT2kr [ LIT ROT2kr ] !:OPC
+@:DUP2kr [ LIT DUP2kr ] !:OPC
+@:OVR2kr [ LIT OVR2kr ] !:OPC
+@:EQU2kr [ LIT EQU2kr ] !:OPC
+@:NEQ2kr [ LIT NEQ2kr ] !:OPC
+@:GTH2kr [ LIT GTH2kr ] !:OPC
+@:LTH2kr [ LIT LTH2kr ] !:OPC
+@:JMP2kr [ LIT JMP2kr ] !:OPC
+@:JCN2kr [ LIT JCN2kr ] !:OPC
+@:JSR2kr [ LIT JSR2kr ] !:OPC
+@:STH2kr [ LIT STH2kr ] !:OPC
+@:LDZ2kr [ LIT LDZ2kr ] !:OPC
+@:STZ2kr [ LIT STZ2kr ] !:OPC
+@:LDR2kr [ LIT LDR2kr ] !:OPC
+@:STR2kr [ LIT STR2kr ] !:OPC
+@:LDA2kr [ LIT LDA2kr ] !:OPC
+@:STA2kr [ LIT STA2kr ] !:OPC
+@:DEI2kr [ LIT DEI2kr ] !:OPC
+@:DEO2kr [ LIT DEO2kr ] !:OPC
+@:ADD2kr [ LIT ADD2kr ] !:OPC
+@:SUB2kr [ LIT SUB2kr ] !:OPC
+@:MUL2kr [ LIT MUL2kr ] !:OPC
+@:DIV2kr [ LIT DIV2kr ] !:OPC
+@:AND2kr [ LIT AND2kr ] !:OPC
+@:ORA2kr [ LIT ORA2kr ] !:OPC
+@:EOR2kr [ LIT EOR2kr ] !:OPC
+@:SFT2kr [ LIT SFT2kr ] !:OPC
 @:LIT ( -- :byte )
     STH2kr LDA INC2r
     ,/byte STR
@@ -47,13 +289,9 @@
     ;/command #0004 !:asm/send-len
     &command [ :quot &hi-byte $1 :quot &lo-byte $1 ]
 
-( local library )
-@EMIT ( byte -- :byte ) .Console/write DEO JMP2r
-
 ( remote library )
 @:EMIT ( :byte -- byte ) [ :LIT -Console/write ] :DEO JMP2r
 @:DBG ( -- ) [ :LIT2 01 -System/debug ] :DEO JMP2r
-
 @:asm/reset ( -- ) #0120 ( >> )
 @:asm/set ( addr* -- ) ,/pointer STR2 JMP2r
 @:asm/get ( -- addr* ) ,/pointer LDA2 JMP2r
@@ -76,5 +314,8 @@
         INC2 GTH2k ?/loop
     POP2 POP2 POP2r
     JMP2r
-     
+
+( local library )
+@EMIT ( byte -- :byte ) .Console/write DEO JMP2r
+
 ~main.tal
