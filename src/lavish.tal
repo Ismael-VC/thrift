@@ -27,14 +27,24 @@
     ;/command #0002 !:asm/send-len
     &command [ :quot &byte $1 ]
 
-@:LIT2 ( -- :short )
+@:LIT2 ( -- :short* )
     STH2kr LDA2 INC2r INC2r
     ,/lo-byte STR ,/hi-byte STR
     ;/command #0004 !:asm/send-len
     &command [ :quot &hi-byte $1 :quot &lo-byte $1 ]
 
-@:LITr
-@:LIT2r
+@:LITr ( -- | :byte )
+    STH2kr LDA INC2r
+    ,/byte STR
+    ;/command #0005 !:asm/send-len
+    &command [ :quot &byte $1 :quot STH :unqt ]
+
+@:LIT2r ( -- | :short* )
+    STH2kr LDA2 INC2r INC2r
+    ,/lo-byte STR ,/hi-byte STR
+    ;/command #0007 !:asm/send-len
+    &command [ :quot &hi-byte $1 :quot &lo-byte $1 :quot STH2 :unqt ]
+
 @:JCI
 @:JMI
 @:JSI

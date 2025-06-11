@@ -4,6 +4,9 @@
     | If n is divisible by both, print "fizzbuzz"
     | Else, print the number )
 
+@:on-reset ( -> ) [ :LIT aa ] [ :LITr bb ] [ :LIT2 ccdd ] [ :LIT2r eeff ] :DBG BRK
+
+(
 @:on-reset ( -> ) :fizzbuzz BRK
 
 @:fizzbuzz ( -- )
@@ -18,5 +21,5 @@
 @:buzz ( :n -- ) [ :LIT 05 ] :DIVk :MUL :SUB :EMIT ?{ [ :LIT 01 ] ;msgs/buzz !:<str> } [ :LIT 00 ] JMP2r
 @:<dec> ( :n -- ) :DUP [ :LIT 0a ] :DIV /d [ :LIT 0a ] :DIVk :MUL :SUB &d [ :LIT 30 ] :ADD [ :LIT 18 ] :DEO JMP2r
 @:<str> ( s* -- ) LDAk :EMIT [ :LIT 18 ] :DEO INC2 LDAk ?:<str> POP2 JMP2r
-@msgs &fizz "Fizz $1 &buzz "Buzz $1
+@msgs &fizz "Fizz $1 &buzz "Buzz $1 )
 
