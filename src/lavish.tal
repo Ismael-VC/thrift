@@ -1,4 +1,5 @@
 ( # Lavish )
+%DBG ( -- ) { [ LIT2 01 -System/debug ] DEO }
 |0e @System/debug  $1
 |10 @Console/vector $2 &read $1 &pad $5 &write $1 &error $1
 
@@ -20,34 +21,33 @@
 
 
 ( ### Literal Opcodes )
-@:BRK [ LIT BRK ]    !:OPC
+%quote-raw-byte { STH2kr LDA INC2r ,/byte STR }
+%quote-raw-short { STH2kr LDA2 INC2r INC2r ,/lo-byte STR ,/hi-byte STR }
+@:BRK ( -- ) [ LIT BRK ] !:OPC
 @:LIT ( -- :byte )
-    STH2kr LDA INC2r
-    ,/byte STR
+    quote-raw-byte
     ;/command #0002 !:asm/send-len
     &command [ :quot &byte $1 ]
 
 @:LIT2 ( -- :short* )
-    STH2kr LDA2 INC2r INC2r
-    ,/lo-byte STR ,/hi-byte STR
+    quote-raw-short
     ;/command #0004 !:asm/send-len
     &command [ :quot &hi-byte $1 :quot &lo-byte $1 ]
 
 @:LITr ( -- | :byte )
-    STH2kr LDA INC2r
-    ,/byte STR
+    quote-raw-byte
     ;/command #0005 !:asm/send-len
     &command [ :quot &byte $1 :quot STH :unqt ]
 
 @:LIT2r ( -- | :short* )
-    STH2kr LDA2 INC2r INC2r
-    ,/lo-byte STR ,/hi-byte STR
+    quote-raw-short
     ;/command #0007 !:asm/send-len
     &command [ :quot &hi-byte $1 :quot &lo-byte $1 :quot STH2 :unqt ]
 
+( ### Unimplemented Opcodes
 @:JCI
 @:JMI
-@:JSI
+@:JSI )
 
 ( ### Remaining Opcodes )
 @:INC    [ LIT INC ]    !:OPC        @:INCk   [ LIT INCk ]   !:OPC
@@ -177,18 +177,18 @@
 
 
 ( ## Remote Library )
-%:emit ( :byte -- ) { :quot -Console/write :quot DEO :unqt }
+%:QUOT { [ LIT2 :quot -Console/write ] DEO }
+%:UNQT { [ LIT2 :unqt -Console/write ] DEO }
 %:dbg ( -- ) { :quot 01 :quot -System/debug :quot DEO :unqt }
-%:eol ( -- ) { :quot 0a :emit }
-
-@:EMIT ( :byte -- byte ) [ :LIT -Console/write ] !:DEO
+%:emit ( :byte -- ) { :quot -Console/write :quot DEO :unqt }
 @:DBG ( -- ) [ :LIT2 01 -System/debug ] !:DEO
-@:EOL ( -- ) [ :LIT2 0a -Console/write ] !:DEO
+@:EMIT ( :byte -- byte ) [ :LIT -Console/write ] !:DEO
+@:EMIT2 ( :short -- short ) :SWP :EMIT !:EMIT
 @:asm/reset ( -- ) #0120 ( >> )
 @:asm/set ( addr* -- ) ,/pointer STR2 JMP2r
 @:asm/get ( -- addr* ) ,/pointer LDA2 JMP2r
 @:asm/send-len ( start* len* -- ) ADD2k NIP2 ( >> )
-@:asm/send-blk ( start* end* -- ) ;EMIT !/for-each
+@:asm/send-blk ( start* end* -- ) ;emit !/for-each
 @:asm/cpy-len ( start* len* -- ) ADD2k NIP2 ( >> )
 @:asm/cpy-blk ( start* end* -- ) ;/write ( >> )
 @:asm/for-each ( start* end* fn* -- )
@@ -209,11 +209,10 @@
 
 
 ( ## Local Library )
-%DBG ( -- ) { [ LIT2 01 -System/debug ] DEO }
-
 @on-console ( -> ) .Console/read DEI BRK
-@EMIT ( byte -- :byte ) .Console/write DEO JMP2r
-@EOL ( -- ) [ LIT2 0a -Console/write ] DEO JMP2r
+@emit ( byte -- ) .Console/write DEO JMP2r
+@EMIT ( byte -- :byte ) :QUOT !emit
+@EMIT2 ( short -- :short ) SWP EMIT !EMIT
 
 
 ( ## User Program )
