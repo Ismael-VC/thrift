@@ -8,7 +8,7 @@
     BRK
 
 @fizzbuzz ( -> )
-        #1e00
+        #6500
         &>loop ( length i -- )
                 DUP fizz OVR buzz ORA ?{ DUP <dec> }
                 #0a19 DEO
