@@ -10,6 +10,11 @@
 %:quot { 00 }
 %:unqt { 01 }
 
+@thrift [
+    a0ff e780 1037 0080  1216 2000 0da0 fff4
+    8010 3700 8012 1640  ffe6 8000 1300 0000
+&end
+
 
 ( ## Remote Pseudo Opcodes )
 @:OPC ( op -- )
@@ -184,7 +189,7 @@
 @:DBG ( -- ) [ :LIT2 01 -System/debug ] !:DEO
 @:EMIT ( :byte -- byte ) [ :LIT -Console/write ] !:DEO
 @:EMIT2 ( :short -- short ) :SWP :EMIT !:EMIT
-@:asm/reset ( -- ) #0120 ( >> )
+@:asm/reset ( -- ) #0100 ( >> )
 @:asm/set ( addr* -- ) ,/pointer STR2 JMP2r
 @:asm/get ( -- addr* ) ,/pointer LDA2 JMP2r
 @:asm/send-len ( start* len* -- ) ADD2k NIP2 ( >> )
@@ -200,12 +205,19 @@
     JMP2r
 
 @:asm/write ( byte -- )
-    [ LIT2 &pointer 0120 ] INC2k ,/pointer STR2
+    [ LIT2 &pointer 0100 ] INC2k ,/pointer STR2
     ,/lo-byte STR ,/hi-byte STR ,/byte STR
     ;/start ;/end !/send-blk
     &start [
         :quot &byte $1 :quot &hi-byte $1 :quot &lo-byte $1 :quot STA :unqt
     ] &end
+
+@:asm/init ( -- )
+    #ffe0 :asm/set
+    ;thrift ;thrift/end :asm/cpy-blk
+    :asm/reset
+    [ :LIT2 ffe0 ] :JMP2
+    JMP2r
 
 
 ( ## Local Library )

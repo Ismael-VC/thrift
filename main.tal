@@ -1,10 +1,9 @@
-( :|0120 )
 @:on-reset ( -> )
-    ;:asm/pointer LDA2              ( save default address )
+    :asm/init                       ( move thrift to top memory )
     ;fizzbuzz ;end :asm/cpy-blk     ( copy code )
     #8000 :asm/set                  ( absolute pad to 8000 )
     ;Dict ;Dict/end :asm/cpy-blk    ( copy data )
-    EMIT2 :JMP2                     ( jump to address )
+    [ :LIT2 0100 ] :JMP2            ( jump to :on-reset )
     BRK
 
 @fizzbuzz ( -> )
@@ -21,5 +20,4 @@
 @<str> ( s* -- ) LDAk #19 DEO INC2 LDAk ?<str> POP2 JMP2r
 @end
 
-( :|8000 )
 |8000 @Dict &fizz "Fizz $1 &buzz "Buzz $1 &end
