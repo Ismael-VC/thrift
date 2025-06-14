@@ -23,9 +23,42 @@ while `:bar` takes it's arguments from the main uxn working stack, but leaves a
 
 ## Macros
 
+The **Macros** provide a low lewel API used to create commands in the local which
+are then sent to the remote to be executed as "expressions":
 
+* `:quot`: quotes a byte (treating it as a literal to be pushed to the :WST).
+* `:unqt`: unquotes a byte (treating it as an opcode to executed immediatly).
+
+```uxntal
+@main ( -> )
+    #0004 ;:#0a03   :asm/send-len   ( :0a :03 )
+    ;:mod ;:mod/end :asm/send-blk   ( :01 )
+    :DBG
+    BRK
+
+    @:#0a030 [ :quot 0a  :quot 03 ]
+    @:mod [ ( :quot DIVk :unqt  :quot MUL :unqt  :quot SUB :unqt ] &end
+```
+
+* `:asm/send-len ( length* start* -- )`
+* `:asm/send-blk ( start* end*  -- )`: sends a block of bytes to be assembled at
+   `:asm/pointer` absolute address.
+* `:asm/set ( addr* -- )`: sets `:asm/pointer` to an absolute address.
+* `:asm/reset ( -- )`: resets `:asm/pointer` to the default value (0100).
+
+
+Notice each byte must be quoted independently.
 
 ## Remote Pseudo Opcodes
+
+These routines provide a higer level API:
+
+```uxntal
+@main ( -> )
+    [ :LIT2 0a03 ] :DIVk :MUL :SUB    ( :01 )
+    :DBG
+    BRK
+```
 
 ## Routines
 

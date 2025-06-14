@@ -23,4 +23,5 @@ clean:
 	@ rm -rf roms
 
 install: build
+	@ mkdir -p ~/roms
 	@ cp roms/* ~/roms

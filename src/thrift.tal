@@ -2,6 +2,8 @@
 
 |10 @Console/vector $2  &read $1
 
+|100
+
 @on-reset ( -> )
 |0100   a0 01 07   ( ;on-console )
 |0103   80 10      ( .Console/vector )
@@ -28,6 +30,3 @@
 |011d   00         ( $1 )
 |011e   00         ( BRK )
 |011f
-
-@here
-|0120

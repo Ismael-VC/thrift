@@ -1,23 +1,23 @@
-@main ( -> )
-    :asm/init                       ( move thrift to top memory )
-    ;fizzbuzz ;end :asm/cpy-blk     ( copy code )
-    #8000 :asm/set                  ( absolute pad to 8000 )
-    ;Dict ;Dict/end :asm/cpy-blk    ( copy data )
-    [ :LIT2 0100 ] :JMP2            ( jump to :on-reset )
+@on-reset ( -> )
+    :asm/setup                              ( move thrift to top memory )
+    ;Fizzbuzz ;Fizzbuzz/end :asm/cpy-blk    ( copy code )
+    #8000 :asm/set                          ( absolute pad to 8000 )
+    ;Dict ;Dict/end :asm/cpy-blk            ( copy data )
+    [ :LIT2 0100 ] :JMP2                    ( jump to :on-reset )
     BRK
 
-@fizzbuzz ( -> )
-        #6500
-        &>loop ( length i -- )
-                DUP fizz OVR buzz ORA ?{ DUP <dec> }
-                #0a19 DEO
-                INC GTHk ?&>loop
-        POP2 BRK
+@Fizzbuzz ( -> )
+    #6500
+    &>loop ( length i -- )
+        DUP fizz OVR buzz ORA ?{ DUP <dec> }
+        #0a19 DEO
+        INC GTHk ?&>loop
+    POP2 BRK
 
 @fizz ( n -- ) #03 DIVk MUL SUB ?{ #01 ;Dict/fizz !<str> } #00 JMP2r
 @buzz ( n -- ) #05 DIVk MUL SUB ?{ #01 ;Dict/buzz !<str> } #00 JMP2r
 @<dec> ( n -- ) DUP #0a DIV /d #0a DIVk MUL SUB &d #30 ADD #19 DEO JMP2r
 @<str> ( s* -- ) LDAk #19 DEO INC2 LDAk ?<str> POP2 JMP2r
-@end
+@Fizzbuzz/end
 
 |8000 @Dict &fizz "Fizz $1 &buzz "Buzz $1 &end
