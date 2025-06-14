@@ -1,23 +1,25 @@
 @on-reset ( -> )
     :asm/setup                              ( move thrift to top memory )
-    ;Fizzbuzz ;Fizzbuzz/end :asm/cpy-blk    ( copy code )
-    #8000 :asm/set                          ( absolute pad to 8000 )
+    ;FizzBuzz ;FizzBuzz/end :asm/cpy-blk    ( copy code )
+    ;Dict :asm/set                          ( absolute pad to ;Dict )
     ;Dict ;Dict/end :asm/cpy-blk            ( copy data )
     [ :LIT2 0100 ] :JMP2                    ( jump to :on-reset )
     BRK
 
-@Fizzbuzz ( -> )
-    #6500
+@FizzBuzz ( -> )
+    #6501
     &>loop ( length i -- )
         DUP fizz OVR buzz ORA ?{ DUP <dec> }
-        #0a19 DEO
+        [ LIT2 0a -Console/error ] DEO
         INC GTHk ?&>loop
     POP2 BRK
 
-@fizz ( n -- ) #03 DIVk MUL SUB ?{ #01 ;Dict/fizz !<str> } #00 JMP2r
-@buzz ( n -- ) #05 DIVk MUL SUB ?{ #01 ;Dict/buzz !<str> } #00 JMP2r
-@<dec> ( n -- ) DUP #0a DIV /d #0a DIVk MUL SUB &d #30 ADD #19 DEO JMP2r
-@<str> ( s* -- ) LDAk #19 DEO INC2 LDAk ?<str> POP2 JMP2r
-@Fizzbuzz/end
+%MOD ( a b -- a%b ) { DIVk MUL SUB }
+%ERR ( a -- ) { .Console/error DEO }
+@fizz ( n -- ) #03 MOD ?{ #01 ;Dict/fizz !<str> } #00 JMP2r
+@buzz ( n -- ) #05 MOD ?{ #01 ;Dict/buzz !<str> } #00 JMP2r
+@<dec> ( n -- ) DUP #0a DIV /d #0a MOD &d #30 ADD ERR JMP2r
+@<str> ( s* -- ) LDAk ERR INC2 LDAk ?<str> POP2 JMP2r
+@FizzBuzz/end
 
-|8000 @Dict &fizz "Fizz $1 &buzz "Buzz $1 &end
+@Dict &fizz "Fizz $1 &buzz "Buzz $1 &end

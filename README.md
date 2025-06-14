@@ -13,7 +13,6 @@ computer, routines may take arguments from the main or the remote computer, i.e.
 
 ```uxntal
 @:foo ( :a :b -- :c )
-
 @:bar ( a b -- :c)
 ``` 
 
@@ -40,14 +39,18 @@ are then sent to the remote to be executed as "expressions":
     @:mod [ ( :quot DIVk :unqt  :quot MUL :unqt  :quot SUB :unqt ] &end
 ```
 
-* `:asm/send-len ( length* start* -- )`
+## Remote Assembler
+
+* `:asm/setup`: setups a copy of thrift at :ff0e, resets the assembler and jumps to :ff0e.
+* `:asm/send-len ( length* start* -- )` sends a number of bytes to be assembled at
+  `:asm/pointer_` absolute address.
 * `:asm/send-blk ( start* end*  -- )`: sends a block of bytes to be assembled at
-   `:asm/pointer` absolute address.
-* `:asm/set ( addr* -- )`: sets `:asm/pointer` to an absolute address.
-* `:asm/reset ( -- )`: resets `:asm/pointer` to the default value (0100).
+  `:asm/pointer_` absolute address.
+* `:asm/set ( addr* -- )`: sets `:asm/pointer_` to an absolute address.
+* `:asm/reset ( -- )`: resets `:asm/pointer_` to the default value (0100).
+* `:asm/get`: gets the current value of `:asm/pointer_`.
 
-
-Notice each byte must be quoted independently.
+Notice that each byte must be quoted independently.
 
 ## Remote Pseudo Opcodes
 
@@ -55,27 +58,9 @@ These routines provide a higer level API:
 
 ```uxntal
 @main ( -> )
-    [ :LIT2 0a03 ] :DIVk :MUL :SUB    ( :01 )
+    [ :LIT2 0a03 ] :MOD   ( :01 )
     :DBG
     BRK
-```
 
-## Routines
-
-## Examples
-
-```uxntal
-@command ( -- )
-    ;/start ;/end send
-    JMP2r
-
-    &start [ 
-        :0a :03 :divk :mul :sub    ( :01 ) 
-    ] &end
-```
-
-Is the same as doing:
-
-```uxntal
-#0a03 DIVk MUL SUB    ( 01 )
+@:MOD ( :a :b -- :(a%b) ) :DIVk :MUL !:SUB
 ```
