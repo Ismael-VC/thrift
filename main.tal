@@ -1,4 +1,4 @@
-@:on-reset ( -> )
+@main ( -> )
     :asm/init                       ( move thrift to top memory )
     ;fizzbuzz ;end :asm/cpy-blk     ( copy code )
     #8000 :asm/set                  ( absolute pad to 8000 )

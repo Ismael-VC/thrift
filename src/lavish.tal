@@ -3,7 +3,7 @@
 |0e @System/debug  $1
 |10 @Console/vector $2 &read $1 &pad $5 &write $1 &error $1
 
-|100 @on-reset ( -> ) ;on-console .Console/vector DEO2 !:on-reset
+|100 @on-reset ( -> ) ;on-console .Console/vector DEO2 !main
 
 
 ( ## Thrift Instructions )
