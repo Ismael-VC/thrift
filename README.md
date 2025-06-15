@@ -35,15 +35,16 @@ the olny two instrucitons are `quote` and `unquote`.
 |011f
 ```
 
-1. `on-reset`: setup `on-console` callback to handle incomming bytes.
+1. `on-reset`: setups the `on-console` callback to handle the incomming byte
+   stream.
 2. `on-console`: if the received byte is null, the `on-quote` callback is set,
    else control flow jumps to `on-unquote`.
 3. `on-quote`: leaves received byte on the remote working stack and resets
    `on-console` as the callback for the remaining byte stream.
 4. `on-unquote`: evaluates the byte at the top of the stack as an opcode.
 
-When assembled the last two trailing null bytes are elided because uxn memory is
-zeroed out on reset, leaving us with a 29 bytes rom.
+When assembled the last two trailing null bytes are ellided because uxn memory
+is zeroed out on reset, leaving us with a 29 bytes rom.
 
 ```uxntal
 a001 0780 1037 0080  1216 2000 0da0 0114
@@ -53,7 +54,7 @@ a001 0780 1037 0080  1216 2000 0da0 0114
 * Quote: pushes a byte to the remote working stack, functionally equivalent to
   `LIT`.
 * Unquote: evaluates the byte at the top of the remote working stack as an
-  opcode: `[ #00 STR $1 ] BRK`.
+  opcode.
 
 Serial communication is emulated via the `Console/write` device ports, used to
 send bytes between the local and remote computers.
@@ -68,9 +69,9 @@ i.e.:
 @:bar ( a b -- :c)
 ```
 
-`:foo` is a routine that takes it's arugments from the remote uxn working stack,
-while `:bar` takes it's arguments from the main uxn working stack, but leaves a
-`:c` byte in the remote computer working stack.
+`:foo` is a routine that takes it's arugments from the remote working stack,
+while `:bar` takes it's arguments from the local working stack, but leaves a
+byte in the remote working stack.
 
 ## Dependencies
 
@@ -142,22 +143,20 @@ which are then sent to the remote to be executed as "expressions":
     :DBG
     BRK
 
-    @:cmd [ :quot 0a  :quot 03 ]
+@:cmd [ :quot 0a  :quot 03 ]
 
-    %:divk { :quot DIVk :unqt }
-    %:mul  { :quot MUL :unqt}
-    %:sub  { :quot SUB :unqt}
-    @:mod [ :divk :mul :sub ] &end
+%:divk { :quot DIVk :unqt }  %:mul { :quot MUL :unqt}  %:sub { :quot SUB :unqt}
+@:mod [ :divk :mul :sub ] &end
 ```
-
-Originally there were macros like `:divk` for each opcode, but the drifblim
-assembler does not support the creation of that many macros.
 
 Output:
 ```
 WST 00 00 00 00 00 00 00|01 <01
 RST 00 00 00 00 00 00 00 00|<00
 ```
+
+Originally there were macros like `:divk` for each opcode, but the drifblim
+assembler does not support the creation of that many macros.
 
 Notice that each byte must be quoted independently.
 
