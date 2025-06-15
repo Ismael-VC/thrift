@@ -1,5 +1,5 @@
 ( # Lavish )
-%DBG ( -- ) { [ LIT2 01 -System/debug ] DEO }
+%DBG ( -- ) { [ LIT2 -NZ -System/debug ] DEO }
 
 |00 @System     &vector $2 &wst      $1 &rst    $1 &eaddr  $2 &ecode  $1 &pad     $1 &r       $2 &g      $2 &b     $2 &debug  $1 &halt $1
 |10 @Console    &vector $2 &read     $1 &pad    $5 &write  $1 &error  $1
@@ -13,28 +13,24 @@
 |a0 @File0      &vector $2 &success  $2 &stat   $2 &delete $1 &append $1 &name    $2 &length  $2 &read   $2 &write $2
 |b0 @File1      &vector $2 &success  $2 &stat   $2 &delete $1 &append $1 &name    $2 &length  $2 &read   $2 &write $2
 |c0 @DateTime   &year   $2 &month    $1 &day    $1 &hour   $1 &minute $1 &second  $1 &dotw    $1 &doty   $2 &isdst $1
+|00 @ZE $1 @NZ
 
 |100 @on-reset_ ( -> ) !on-reset
 
-
 ( ## Thrift Instructions )
-%:quot { 00 }
-%:unqt { 01 }
+%:quot { -ZE }
+%:unqt { -NZ }
 
 @thrift_ [
     a0ff e780 1037 0080  1216 2000 0da0 fff4
     8010 3700 8012 1640  ffe6 8000 1300 0000 
 ] &end_
 
-
 ( ## Remote Pseudo Opcodes )
 @:OPC_ ( op -- )
     ,/op_ STR
     ;/start_ ;/end_ !:asm/send-blk
-    &start_ [
-        :quot &op_ $1 :unqt
-    ] &end_
-
+    &start_ [:quot &op_ $1 :unqt ] &end_
 
 ( ### Literal Immediate Opcodes )
 %quote-raw-byte_ { STH2kr LDA INC2r ,/byte_ STR }
@@ -42,28 +38,26 @@
 @:BRK ( -- ) [ LIT BRK ] !:OPC_
 @:LIT ( -- :byte )
     quote-raw-byte_
-    ;/command_ #0002 !:asm/send-len
-    &command_ [ :quot &byte_ $1 ]
+    ;/start_ ;/end_ !:asm/send-blk
+    &start_ [ :quot &byte_ $1 ] &end_
 
 @:LIT2 ( -- :short* )
     quote-raw-short_
-    ;/command #0004 !:asm/send-len
-    &command [ :quot &hi-byte_ $1 :quot &lo-byte_ $1 ]
+    ;/start_ ;/end_ !:asm/send-blk
+    &start_ [ :quot &hi-byte_ $1 :quot &lo-byte_ $1 ] &end_
 
 @:LITr ( -- | :byte )
     quote-raw-byte_
-    ;/command_ #0005 !:asm/send-len
-    &command_ [ :quot &byte_ $1 :quot STH :unqt ]
+    ;/start_ ;/end_ !:asm/send-blk
+    &start_ [ :quot &byte_ $1 :quot STH :unqt ] &end_
 
 @:LIT2r ( -- | :short* )
     quote-raw-short_
-    ;/command_ #0007 !:asm/send-len
-    &command_ [ :quot &hi-byte_ $1 :quot &lo-byte_ $1 :quot STH2 :unqt ]
-
+    ;/start_ ;/end_ !:asm/send-blk
+    &start_ [ :quot &hi-byte_ $1 :quot &lo-byte_ $1 :quot STH2 :unqt ] &end_
 
 ( ### Unimplemented Immediate Opcodes
 @:JCI  @:JMI  @:JSI )
-
 
 ( ### Remaining Opcodes )
 @:INC    [ LIT INC ]    !:OPC_        @:INCk   [ LIT INCk ]   !:OPC_
@@ -184,26 +178,23 @@
 @:EOR2r  [ LIT EOR2r ]  !:OPC_        @:EOR2kr [ LIT EOR2kr ] !:OPC_
 @:SFT2r  [ LIT SFT2r ]  !:OPC_        @:SFT2kr [ LIT SFT2kr ] !:OPC_
 
-
 ( ### Unimplemented Relative Opcodes
 @:JMP   @:JMPk  @:JCN   @:JCNk   @:JSR     @:JSRk   @:LDR  
 @:LDRk  @:STR   @:STRk  @:LDR2r  @:LDR2kr  @:STR2r  @:STR2kr )
-
 
 ( ### Unimplemented Noop Opcodes
 @:NIPk   @:POP2k   @:NIP2k  @:POPkr 
 @:NIPkr  @:POP2kr  @:NIP2kr )
 
-
 ( ## Remote Library )
 %:QUOT { [ LIT2 :quot -Console/write ] DEO }
 %:UNQT { [ LIT2 :unqt -Console/write ] DEO }
-%:dbg ( -- ) { :quot 01 :quot -System/debug :quot DEO :unqt }
+%:dbg ( -- ) { :quot -NZ :quot -System/debug :quot DEO :unqt }
 %:emit ( :byte -- ) { :quot -Console/write :quot DEO :unqt }
-@:DBG ( -- ) [ :LIT2 01 -System/debug ] !:DEO
+@:DBG ( -- ) [ :LIT2 -NZ -System/debug ] !:DEO
 @:EMIT ( :byte -- byte ) [ :LIT -Console/write ] !:DEO
 @:EMIT2 ( :short -- short ) :SWP :EMIT !:EMIT
-@:asm/reset ( -- ) #0100 ( >> )
+@:asm/reset ( -- ) ;on-reset_ ( >> )
 @:asm/set ( addr* -- ) ,/pointer_ STR2 JMP2r
 @:asm/get ( -- addr* ) ,/pointer_ LDA2 JMP2r
 @:asm/send-len ( start* len* -- ) ADD2k NIP2 ( >> )
@@ -219,7 +210,7 @@
     JMP2r
 
 @:asm/write ( byte -- )
-    [ LIT2 &pointer_ 0100 ] INC2k ,/pointer_ STR2
+    [ LIT2 &pointer_ -on-reset ] INC2k ,/pointer_ STR2
     ,/lo-byte_ STR ,/hi-byte_ STR ,/byte_ STR
     ;/start_ ;/end_ !/send-blk
     &start_ [
@@ -227,17 +218,16 @@
     ] &end_
 
 @:asm/setup ( -- )
-    #ffe0 :asm/set
+    %thrift-top_ { ffe0 }
+    [ LIT2 thrift-top_ ] :asm/set
     ;thrift_ ;thrift_/end_ :asm/cpy-blk
     :asm/reset
-    [ :LIT2 ffe0 ] !:JMP2
-
+    [ :LIT2 thrift-top_ ] !:JMP2
 
 ( ## Local Library )
 @emit ( byte -- ) .Console/write DEO JMP2r
 @EMIT ( byte -- :byte ) :QUOT !emit
 @EMIT2 ( short -- :short ) SWP EMIT !EMIT
-
 
 ( ## User Program )
 ~main.tal
