@@ -23,7 +23,7 @@
 
 @thrift_ [
     a0ff e780 1037 0080  1216 2000 0da0 fff4
-    8010 3700 8012 1640  ffe6 8000 1300 0000 
+    8010 3700 8012 1640  ffe6 8000 1300 0000
 ] &end_
 
 ( ## Remote Pseudo Opcodes )
@@ -179,11 +179,11 @@
 @:SFT2r  [ LIT SFT2r ]  !:OPC_        @:SFT2kr [ LIT SFT2kr ] !:OPC_
 
 ( ### Unimplemented Relative Opcodes
-@:JMP   @:JMPk  @:JCN   @:JCNk   @:JSR     @:JSRk   @:LDR  
+@:JMP   @:JMPk  @:JCN   @:JCNk   @:JSR     @:JSRk   @:LDR
 @:LDRk  @:STR   @:STRk  @:LDR2r  @:LDR2kr  @:STR2r  @:STR2kr )
 
 ( ### Unimplemented Noop Opcodes
-@:NIPk   @:POP2k   @:NIP2k  @:POPkr 
+@:NIPk   @:POP2k   @:NIP2k  @:POPkr
 @:NIPkr  @:POP2kr  @:NIP2kr )
 
 ( ## Remote Library )
