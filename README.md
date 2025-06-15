@@ -1,6 +1,10 @@
 # Thrift
 
-Inspired by: "THRee Instruction ForTh".
+**Thrift** is a 2 instruction "Forth" for Uxn in 31 bytes, inspired by
+["THRee Instruction ForTh"](https://pygmy.utoh.org/3ins4th.html),
+the olny two instrucitons are `quote` and `unquote`.
+
+> "To quote, or to unquote, that is the question." -- Not William Shakespeare.
 
 ```uxntal
 @on-reset ( -> )
@@ -31,12 +35,25 @@ Inspired by: "THRee Instruction ForTh".
 |011f
 ```
 
-**Thrift** is a 2 instruction "Forth", the oly two instrucitons are:
+1. `on-reset`: setup `on-console` callback to handle incomming bytes.
+2. `on-console`: if the received byte is null, the `on-quote` callback is set,
+   else control flow jumps to `on-unquote`.
+3. `on-quote`: leaves received byte on the remote working stack and resets
+   `on-console` as the callback for the remaining byte stream.
+4. `on-unquote`: evaluates the byte at the top of the stack as an opcode.
 
-* Quote: pushes a byte to the working stack, functionally equivalent to
-  `[ LIT $1 ]`.
-* Unquote: evaluates the byte at the top of the stack as an opcode,
-  `[ #00 STR $1 ]`.
+When assembled the last two trailing null bytes are elided because uxn memory is
+zeroed out on reset, leaving us with a 29 bytes rom.
+
+```uxntal
+a001 0780 1037 0080  1216 2000 0da0 0114
+8010 3700 8012 1640  ffe6 8000 13
+````
+
+* Quote: pushes a byte to the remote working stack, functionally equivalent to
+  `LIT`.
+* Unquote: evaluates the byte at the top of the remote working stack as an
+  opcode: `[ #00 STR $1 ] BRK`.
 
 Serial communication is emulated via the `Console/write` device ports, used to
 send bytes between the local and remote computers.
@@ -120,13 +137,26 @@ which are then sent to the remote to be executed as "expressions":
 
 ```uxntal
 @main ( -> )
-    #0004 ;:#0a03   :asm/send-len   ( :0a :03 )
+    #0004 ;:cmd     :asm/send-len   ( :0a :03 )
     ;:mod ;:mod/end :asm/send-blk   ( :01 )
     :DBG
     BRK
 
-    @:#0a030 [ :quot 0a  :quot 03 ]
-    @:mod [ ( :quot DIVk :unqt  :quot MUL :unqt  :quot SUB :unqt ] &end
+    @:cmd [ :quot 0a  :quot 03 ]
+
+    %:divk { :quot DIVk :unqt }
+    %:mul  { :quot MUL :unqt}
+    %:sub  { :quot SUB :unqt}
+    @:mod [ :divk :mul :sub ] &end
+```
+
+Originally there were macros like `:divk` for each opcode, but the drifblim
+assembler does not support the creation of that many macros.
+
+Output:
+```
+WST 00 00 00 00 00 00 00|01 <01
+RST 00 00 00 00 00 00 00 00|<00
 ```
 
 Notice that each byte must be quoted independently.
@@ -145,6 +175,12 @@ remote:
 @:MOD ( :a :b -- :(a%b) ) :DIVk :MUL !:SUB
 ```
 
+Output:
+```
+WST 00 00 00 00 00 00 00|01 <01
+RST 00 00 00 00 00 00 00 00|<00
+```
+
 Remember all remote pseudo opcodes are routines, so you can jump to them at tail
 position: `!:SUB` vs `:SUB JMP2r`.
 
@@ -156,7 +192,7 @@ absolute addressing is supported in expressions.
 
 #### Immediate Opcodes
 
-* `:JCI`: use `:JMC2` instead.
+* `:JCI`: use `:JCN2` instead.
 * `:JMI`: use `:JMP2` instead.
 * `:JSI`: use `:JSR2` instead.
 
@@ -176,8 +212,8 @@ Only `:POPk` is implemented, and well, it does nothing as you would expect.
 
 * `:JMP`:    use `:JMP2`   instead.
 * `:JMPk`:   use `:JMP2k`  instead.
-* `:JCN`:    use `:JMC2`   instead.
-* `:JCNk`:   use `:JMC2k`  instead.
+* `:JCN`:    use `:JCN2`   instead.
+* `:JCNk`:   use `:JCN2k`  instead.
 * `:JSR`:    use `:JSR2`   instead.
 * `:JSRk`:   use `:JSR2k`  instead.
 * `:LDR`:    use `:LDA`    instead.
