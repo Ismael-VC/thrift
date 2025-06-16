@@ -90,6 +90,28 @@
 %quote-raw-byte_ { STH2kr LDA INC2r ,/byte_ STR }
 %quote-raw-short_ { STH2kr LDA2 INC2r INC2r ,/lo-byte_ STR ,/hi-byte_ STR }
 @:BRK ( -- ) [ LIT BRK ] !:OPC_
+
+@:LIT ( -- :byte )
+    quote-raw-byte_
+    ;/command_ #0002 !:asm/send-len
+    &command_ [ :quot &byte_ $1 ]
+
+@:LIT2 ( -- :short* )
+    quote-raw-short_
+    ;/command #0004 !:asm/send-len
+    &command [ :quot &hi-byte_ $1 :quot &lo-byte_ $1 ]
+
+@:LITr ( -- | :byte )
+    quote-raw-byte_
+    ;/command_ #0005 !:asm/send-len
+    &command_ [ :quot &byte_ $1 :quot STH :unqt ]
+
+@:LIT2r ( -- | :short* )
+    quote-raw-short_
+    ;/command_ #0007 !:asm/send-len
+    &command_ [ :quot &hi-byte_ $1 :quot &lo-byte_ $1 :quot STH2 :unqt ]
+
+(
 @:LIT ( -- :byte )
     quote-raw-byte_
     ;/start_ ;/end_ !:asm/send-blk
@@ -108,7 +130,7 @@
 @:LIT2r ( -- | :short* )
     quote-raw-short_
     ;/start_ ;/end_ !:asm/send-blk
-    &start_ [ :quot &hi-byte_ $1 :quot &lo-byte_ $1 :quot STH2 :unqt ] &end_
+    &start_ [ :quot &hi-byte_ $1 :quot &lo-byte_ $1 :quot STH2 :unqt ] &end_ )
 
 ( ### Remaining Opcodes )
 @:INC    [ LIT INC ]   !:OPC_        @:INCk   [ LIT INCk ]   !:OPC_

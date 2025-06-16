@@ -1,25 +1,34 @@
 @on-reset ( -> )
-    :asm/setup                               ( move thrift to top memory )
-    ;FizzBuzz ;FizzBuzz/end :asm/copy-blk    ( copy code )
-    ;Dict :asm/set                           ( absolute pad to ;Dict )
-    ;Dict ;Dict/end :asm/copy-blk            ( copy data )
-    [ :LIT2 0100 ] :JMP2                     ( jump to :on-reset )
+    :DBG BRK
+
+
+@on-foo ( -> )
+    :asm/setup                                  ( move thrift to top memory    )
+    ;Module ;Module/end :asm/copy-blk           ( copy code                    )
+    ;Module/Data :asm/set                       ( absolute pad to ;Module/Data )
+    ;Module/Data ;Module/DataEnd :asm/copy-blk  ( copy data                    )
+    [ :LIT2 0100 ] :JMP2                        ( jump to :on-reset on remote  )
     BRK
 
-@FizzBuzz ( -> ) [
-    #6501
-    &>loop ( length i -- )
-        DUP fizz OVR buzz ORA ?{ DUP <dec> }
-        [ LIT2 0a -Console/error ] DEO
-        INC GTHk ?&>loop
-    POP2 BRK
+@Module ( -> ) [
+    %<newline> ( -- ) { [ LIT2 -NewLine -Console/write ] DEO }
+    |0a @NewLine
+
+    |100 @fizzbuzz ( -> )
+        #6501
+        &>loop ( length i -- )
+            DUP fizz OVR buzz ORA ?{ DUP <dec> }
+            <newline>
+            INC GTHk ?&>loop
+        POP2 BRK
 
     %MOD ( a b -- a%b ) { DIVk MUL SUB }
-    %ERR ( a -- ) { .Console/error DEO }
-    @fizz ( n -- ) #03 MOD ?{ #01 ;Dict/fizz !<str> } #00 JMP2r
-    @buzz ( n -- ) #05 MOD ?{ #01 ;Dict/buzz !<str> } #00 JMP2r
-    @<dec> ( n -- ) DUP #0a DIV /d #0a MOD &d #30 ADD ERR JMP2r
-    @<str> ( s* -- ) LDAk ERR INC2 LDAk ?<str> POP2 JMP2r
-] @FizzBuzz/end
+    @fizz ( n -- ) #03 MOD ?{ #01 ;Module/fizz !<str> } #00 JMP2r
+    @buzz ( n -- ) #05 MOD ?{ #01 ;Module/buzz !<str> } #00 JMP2r
 
-@Dict &fizz "Fizz $1 &buzz "Buzz $1 &end
+    %<EMIT> ( c -- ) { .Console/write DEO }
+    @<dec> ( n -- ) DUP #0a DIV /d #0a MOD &d #30 ADD <EMIT> JMP2r
+    @<str> ( s* -- ) LDAk <EMIT> INC2 LDAk ?<str> POP2 JMP2r
+] @Module/end
+
+&Data &fizz "Fizz $1 &buzz "Buzz $1 &DataEnd

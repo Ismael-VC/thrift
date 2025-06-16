@@ -8,30 +8,24 @@ the olny two instrucitons are `quote` and `unquote`.
 
 ```uxntal
 @on-reset ( -> )
-|0100   a0 01 07   ( ;on-console )
-|0103   80 10      ( .Console/vector )
-|0105   37         ( DEO2 )
-|0106   00         ( BRK )
+|0100   a0 01 07   ( ;on-console            )
+|0103   80 10 37   ( .Console/vector DEO2   )
+|0106   00         ( BRK                    )
 
 @on-console ( -> )
-|0107   80 12      ( .Console/read )
-|0109   16         ( DEI )
-|010a   20 00 0d   ( ?on-unquote )
-|010d   a0 01 14   ( ;on-quote )
-|0110   80 10      ( .Console/vector )
-|0112   37         ( DEO2 )
-|0113   00         ( BRK )
+|0107   80 12 16   ( .Console/read DEI      )
+|010a   20 00 0d   ( ?on-unquote            )
+|010d   a0 01 14   (   ;on-quote            )
+|0110   80 10 37   (   .Console/vector DEO2 )
+|0113   00         ( BRK                    )
 
 @on-quote ( -> )
-|0114   80 12      ( .Console/read )
-|0116   16         ( DEI )
-|0117   40 ff e6   ( !on-reset )
+|0114   80 12 16   ( .Console/read DEI      )
+|0117   40 ff e6   ( !on-reset              )
 
 @on-unquote ( -> )
-|011a   80 00      ( #00 )
-|011c   13         ( STR )
-|011d   00         ( $1 )
-|011e   00         ( BRK )
+|011a   80 00 13   ( [ #00 STR              )
+|011d   00 00      ( $1 ] BRK               )
 |011f
 ```
 
