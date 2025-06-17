@@ -17,9 +17,9 @@
 |80 @Controller/vector $2 &button $1 &key $1
 |90 @Mouse/vector $2 &x $2 &y $2 &state $5 &scrolly &scrolly-hb $1
     &scrolly-lb $1
-|a0 @File1/vector $2 &success $2 &stat $2 &delete $1 &append $1 &name $2
+|a0 @File0/vector $2 &success $2 &stat $2 &delete $1 &append $1 &name $2
     &length $2 &read $2 &write $2
-|b0 @File2/vector $2 &success $2 &stat $2 &delete $1 &append $1 &name $2
+|b0 @File1/vector $2 &success $2 &stat $2 &delete $1 &append $1 &name $2
     &length $2 &read $2 &write $2
 |c0 @DateTime/year $2 &month $1 &day $1 &hour $1 &minute $1 &second $1 &dotw $1
     &doty $2 &isdst $1
@@ -27,7 +27,6 @@
 |00 @ZE $1 @NZ
 
 |100 @on-reset_ ( -> ) !on-reset
-
 
 ( ## Thrift Instructions )
 %:quot { -ZE }
@@ -60,9 +59,9 @@
 @:asm/copy-blk ( start* end* -- ) ;/write ( >> )
 @:asm/for-each ( start* end* fn* -- )
     STH2 SWP2
-    &loop_
+    &loop0_
         LDAk STH2kr JSR2
-        INC2 GTH2k ?/loop_
+        INC2 GTH2k ?/loop0_
     POP2 POP2 POP2r
     JMP2r
 
@@ -73,6 +72,15 @@
     &start_ [
         :quot &byte_ $1 :quot &hi-byte_ $1 :quot &lo-byte_ $1 :quot STA :unqt
     ] &end_
+
+@:asm/copy-rom ( filename* -- )
+    .File0/name DEO2
+    #00ff .File0/length DEO2
+    &loop1_
+        ;/buffer_ .File0/read DEO2
+        .File0/success DEI2 STH2k ORA ?{ POP2r JMP2r }
+        ;/buffer_ STH2r :asm/copy-len
+        !/loop1_
 
 @:asm/setup ( -- )
     %thrift-top_ { ffe0 }
@@ -229,6 +237,45 @@
 @:ORA2r  [ LIT ORA2r ]  !:OPC_        @:ORA2kr [ LIT ORA2kr ] !:OPC_
 @:EOR2r  [ LIT EOR2r ]  !:OPC_        @:EOR2kr [ LIT EOR2kr ] !:OPC_
 @:SFT2r  [ LIT SFT2r ]  !:OPC_        @:SFT2kr [ LIT SFT2kr ] !:OPC_
+
+@HexDump
+%\e { 1b }
+%\s { 20 }
+%\n { 0a }
+%\0 { 00 }
+
+%newline { [ LIT2 \n    -Console/error ] DEO }
+%space   { [ LIT2 \s    -Console/error ] DEO }
+%bar     { [ LIT2 "|    -Console/error ] DEO }
+%l-paren { [ LIT2 28    -Console/error ] DEO }
+%r-paren { [ LIT2 29    -Console/error ] DEO }
+
+@print/memory ( address* -- )
+    bar STH2k DUP2 /short space space #0000
+    &memory/loop-bytes ( addr* i* | addr* -- )
+        ADD2k LDA /byte
+        DUP #0f AND DUP #07 NEQ ?{ space }
+        #0f NEQ ?{
+            space space l-paren space
+            ADD2k DUP2 INC2 SWP2 #000f SUB2
+            &memory/loop-chars
+                LDAk DUPk [ LIT \s ] GTH SWP #7f LTH AND ?{
+                    POP [ LIT ". ] }
+                .Console/error DEO INC2 GTH2k ?/memory/loop-chars
+            POP2 POP2
+            space r-paren newline DUP2 INC2 STH2kr ADD2
+            bar /short space }
+        space INC NEQk ?/memory/loop-bytes
+    POP2 POP2 POP2r newline JMP2r
+
+@print/short ( short* -- ) SWP /byte ( >> )
+@print/byte ( byte -- ) DUP #04 SFT /nibble ( >> )
+@print/nibble ( byte -: )
+    #0f AND DUP #09 GTH #27 MUL ADD [ LIT "0 ] ADD .Console/error DEO
+    JMP2r
+@HexDump/end
+
+@:asm/buffer_ $100
 
 ( ## User Program )
 ~main.tal

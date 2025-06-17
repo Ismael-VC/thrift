@@ -1,0 +1,14 @@
+%:on-reset { 0100 }
+%:hexdump  { 8000 }
+
+@on-reset ( -> )
+    :asm/setup
+    [ LIT2 :hexdump ] :asm/set
+    (debug ;HexDump ;HexDump/end :asm/copy-blk )
+    :asm/reset
+    ;filename :asm/copy-rom
+    (debug [ :LIT2 :on-reset ] [ :LIT2 :hexdump ] :JSR2 )
+    [ :LIT2 :on-reset ] :JMP2
+    BRK
+
+@filename "roms/fizzbuzz.rom $1

@@ -19,6 +19,9 @@ run: build
 		wait $$pidA $$pidB; \
 	'
 
+test:
+	@ drifblim etc/fizzbuzz.tal roms/fizzbuzz.rom
+
 clean:
 	@ rm -rf roms
 
