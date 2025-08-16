@@ -2,13 +2,15 @@
 
 |100
 @on-reset ( -> )
-    #03 JMP [
+    !on-quote/init
 @on-quote ( -> )
-    .Console/read DEI ]
-    ;on-console .Console/vector DEO2
+    .Console/read DEI
+    &init
+    	;on-console .Console/vector DEO2
     BRK
 
 @on-console ( -> )
-    .Console/read DEI JMPk STR $1 BRK
+    .Console/read DEI JMPk [ STR $1 ] BRK 
+    POP
     .Console/vector-lo DEO
     BRK

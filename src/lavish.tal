@@ -29,8 +29,8 @@
 |100 @on-reset_ ( -> ) !on-reset
 
 ( ## Thrift Instructions )
-%:quot { -ZE }
-%:unqt { 03 }
+%:quot { 03 }
+%:unqt { 00 }
 %:QUOT { [ LIT2 :quot -Console/write ] DEO }
 %:UNQT { [ LIT2 :unqt -Console/write ] DEO }
 
