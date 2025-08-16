@@ -30,7 +30,7 @@
 
 ( ## Thrift Instructions )
 %:quot { -ZE }
-%:unqt { -NZ }
+%:unqt { 03 }
 %:QUOT { [ LIT2 :quot -Console/write ] DEO }
 %:UNQT { [ LIT2 :unqt -Console/write ] DEO }
 
