@@ -35,8 +35,8 @@
 %:UNQT { [ LIT2 :unqt -Console/write ] DEO }
 
 @thrift_ [
-    a0ff e780 1037 0080  1216 2000 0da0 fff4
-    8010 3700 8012 1640  ffe6 8000 1300 0000
+	8003 0c80 1216 a0ff  f580 1037 0080 1216
+	8c13 0000 02a0 eb11  1700
 ] &end_
 
 ( ## Local Library )
@@ -83,9 +83,9 @@
         !/loop1_
 
 @:asm/setup ( -- )
-    %thrift-top_ { ffe0 }
-    [ LIT2 thrift-top_ ] :asm/set
-    ;thrift_ ;thrift_/end_ :asm/copy-blk
+	%thrift-top_ { ffe8 }
+	[ LIT2 thrift-top_ ] :asm/set
+	;thrift_ ;thrift_/end_ :asm/copy-blk
     :asm/reset
     [ :LIT2 thrift-top_ ] !:JMP2
 

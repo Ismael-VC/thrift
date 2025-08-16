@@ -19,7 +19,7 @@ run: build
 		wait $$pidA $$pidB; \
 	'
 
-busybox:
+busybox: build
 	uxncli roms/lavish.rom | uxncli roms/thrift.rom
 
 test:

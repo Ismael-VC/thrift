@@ -1,15 +1,5 @@
 %:on-reset { 0100 }
 @on-reset ( -> )
-	:asm/setup
-	;code ;code/end :asm/send-blk
-	[ :LIT2 :on-reset ] :JMP2
-	BRK	
-
-@code
-	#1234 DBG
-@code/end
-
-	(
     :asm/setup                               ( move thrift to top memory )
     ;FizzBuzz ;FizzBuzz/end :asm/copy-blk    ( copy code )
     ;Dict :asm/set                           ( absolute pad to ;Dict )
@@ -33,4 +23,4 @@
 @<str> ( s* -- ) LDAk ERR INC2 LDAk ?<str> POP2 JMP2r
 @FizzBuzz/end
 
-@Dict &fizz "Fizz $1 &buzz "Buzz $1 &end )
+@Dict &fizz "Fizz $1 &buzz "Buzz $1 &end

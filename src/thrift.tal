@@ -1,16 +1,16 @@
+%DBG { #010e DEO }
+
 |10 @Console/vector $1 &vector-lo $1 &read $5 &type $1 &write $1 &error $1
 
-|100
+|100 ( ffe8 )
 @on-reset ( -> )
-    !on-quote/init
+    #03 JMP [ ( ffeb )
 @on-quote ( -> )
-    .Console/read DEI
-    &init
-    	;on-console .Console/vector DEO2
-    BRK
+    .Console/read DEI ] ( ffee )
+    ;on-console ( fff5 ) .Console/vector DEO2 ( fff4 )
+    BRK ( fff5 )
 
 @on-console ( -> )
-    .Console/read DEI JMPk [ STR $1 ] BRK 
-    POP
-    .Console/vector-lo DEO
-    BRK
+    .Console/read DEI JMPk STR $1 BRK ( fffc )
+    .Console/vector-lo DEO ( ffff )
+    BRK ( 0000 )
