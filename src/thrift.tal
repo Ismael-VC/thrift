@@ -2,10 +2,10 @@
 
 |100
 @on-reset ( -> )
-    ,on-quote/reset JMP [
+    #03 JMP [
 @on-quote ( -> )
     .Console/read DEI ]
-    &reset ;on-console .Console/vector DEO2
+    ;on-console .Console/vector DEO2
     BRK
 
 @on-console ( -> )
