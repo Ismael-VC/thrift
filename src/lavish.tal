@@ -25,18 +25,33 @@
     &doty $2 &isdst $1
 
 |00 @ZE $1 @NZ
+|ffe9 @thrift-hii_ &on-reset_ $3 &reset_
 
 |100 @on-reset_ ( -> ) !on-reset
 
 ( ## Thrift Instructions )
-%:quot { -ZE }
-%:unqt { -NZ }
+%:quot { 03 }
+%:unqt { -ZE }
 %:QUOT { [ LIT2 :quot -Console/write ] DEO }
 %:UNQT { [ LIT2 :unqt -Console/write ] DEO }
 
-@thrift_ [
-    a0ff e780 1037 0080  1216 2000 0da0 fff4
-    8010 3700 8012 1640  ffe6 8000 1300 0000
+@thrift-hi_ [
+	( @on-reset ( -> ) )
+		( |ffe9 )   80 12 16   ( .Console/read DEI )
+	( &reset )
+		( |ffec )   a0 ff f3   ( ;on-console )
+		( |ffef )   80 10 37   ( .Console/vector-hi DEO2 )
+		( |fff2 )   00         ( BRK )
+
+	( @on-console ( -> ) )
+		( |fff3 )   80 12 16   ( .Console/read DEI )
+		( |fff6 )   8c         ( JMPk )
+	( &unquote )
+		( |fff7 )   13 00 00   ( STR $1 BRK )
+	( &quote )
+	    ( |fffa )   02         ( POP )
+		( |fffb )   a0 e9 11   ( [ LIT2 eb -Console/vector-lo ] DEO )
+		( |fffe )   17 00      ( DEO BRK )
 ] &end_
 
 ( ## Local Library )
@@ -83,11 +98,10 @@
         !/loop1_
 
 @:asm/setup ( -- )
-    %thrift-top_ { ffe0 }
-    [ LIT2 thrift-top_ ] :asm/set
-    ;thrift_ ;thrift_/end_ :asm/copy-blk
+	;thrift-hii_/on-reset_ :asm/set
+	;thrift-hi_ ;thrift-hi_/end_ :asm/copy-blk
     :asm/reset
-    [ :LIT2 thrift-top_ ] !:JMP2
+    [ :LIT2 =thrift-hii_/reset_ ] !:JMP2
 
 ( ## Remote Pseudo Opcodes )
 @:OPC_ ( op -- )

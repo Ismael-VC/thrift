@@ -19,6 +19,9 @@ run: build
 		wait $$pidA $$pidB; \
 	'
 
+busybox: build
+	uxncli roms/lavish.rom | uxncli roms/thrift.rom
+
 test:
 	@ drifblim etc/fizzbuzz.tal roms/fizzbuzz.rom
 
