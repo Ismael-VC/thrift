@@ -8,41 +8,29 @@ the olny two instrucitons are `quote` and `unquote`.
 
 ```uxntal
 @on-reset ( -> )
-|0100   a0 01 07   ( ;on-console            )
-|0103   80 10 37   ( .Console/vector DEO2   )
-|0106   00         ( BRK                    )
+|0100   40 00 03   ( !/reset )
+&quote
+|0103   80 12 16   ( .Console/read DEI )
+&reset
+|0106   a0 01 0d   ( ;on-console )
+|0109   80 10 37   ( .Console/vector-hi DEO2 )
+|010c   00         ( BRK )
 
 @on-console ( -> )
-|0107   80 12 16   ( .Console/read DEI      )
-|010a   20 00 0d   ( ?on-unquote            )
-|010d   a0 01 14   (   ;on-quote            )
-|0110   80 10 37   (   .Console/vector DEO2 )
-|0113   00         ( BRK                    )
-
-@on-quote ( -> )
-|0114   80 12 16   ( .Console/read DEI      )
-|0117   40 ff e6   ( !on-reset              )
-
-@on-unquote ( -> )
-|011a   80 00 13   ( [ #00 STR              )
-|011d   00 00      ( $1 ] BRK               )
-|011f
+|010d   80 12 16   ( .Console/read DEI )
+|0110   8c         ( JMPk )
+&unquote
+|0111   13 00 00   ( STR $1 BRK )
+&quote
+|0114   80 11 17   ( .Console/vector-lo DEO )
+|0117   00         ( BRK )
 ```
-
-1. `on-reset`: setups the `on-console` callback to handle the incomming byte
-   stream.
-2. `on-console`: if the received byte is null, the `on-quote` callback is set,
-   else control flow jumps to `on-unquote`.
-3. `on-quote`: leaves received byte on the remote working stack and resets
-   `on-console` as the callback for the remaining byte stream.
-4. `on-unquote`: evaluates the byte at the top of the stack as an opcode.
-
-When assembled the last two trailing null bytes are ellided because uxn memory
-is zeroed out on reset, leaving us with a 29 bytes rom.
+When assembled the last trailing null byte is ellided because uxn memory
+is zeroed out on reset, leaving us with a 23 bytes rom.
 
 ```uxntal
-a001 0780 1037 0080  1216 2000 0da0 0114
-8010 3700 8012 1640  ffe6 8000 13
+4000 0380 1216 a001  0d80 1037 0080 1216
+8c13 0000 8011 1700
 ````
 
 * Quote: pushes a byte to the remote working stack, functionally equivalent to
