@@ -1,24 +1,14 @@
-( Thrift is a 2-instruction "Forth", inspired by "THRee-Instruction ForTh".
+|10 @Console/vector $1 &vector-lo $1 &read $5 &type $1 &write $1 &error $1
 
-  "To quote, or to unquote, that is the question." -- Not William Shakespeare. )
-
+|100
 @on-reset ( -> )
-|0100   a0 01 07   ( ;on-console            )
-|0103   80 10 37   ( .Console/vector DEO2   )
-|0106   00         ( BRK                    )
+    #03 JMP [
+@on-quote ( -> )
+    .Console/read DEI ]
+    ;on-console .Console/vector DEO2
+    BRK
 
 @on-console ( -> )
-|0107   80 12 16   ( .Console/read DEI      )
-|010a   20 00 0d   ( ?on-unquote            )
-|010d   a0 01 14   (   ;on-quote            )
-|0110   80 10 37   (   .Console/vector DEO2 )
-|0113   00         ( BRK                    )
-
-@on-quote ( -> )
-|0114   80 12 16   ( .Console/read DEI      )
-|0117   40 ff e6   ( !on-reset              )
-
-@on-unquote ( -> )
-|011a   80 00 13   ( [ #00 STR              )
-|011d   00 00      ( $1 ] BRK               )
-|011f
+    .Console/read DEI JMPk STR $1 BRK
+    .Console/vector-lo DEO
+    BRK
