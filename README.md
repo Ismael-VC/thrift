@@ -1,6 +1,6 @@
 # Thrift
 
-**Thrift** is a 2 instruction "Forth" for Uxn in 31 bytes, inspired by
+**Thrift** is a 2 instruction "Forth" for Uxn in 24 bytes, inspired by
 ["THRee Instruction ForTh"](https://pygmy.utoh.org/3ins4th.html),
 the olny two instrucitons are `quote` and `unquote`.
 
