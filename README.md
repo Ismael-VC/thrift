@@ -30,7 +30,7 @@ is zeroed out on reset, leaving us with a 23 bytes rom.
 
 ```uxntal
 4000 0380 1216 a001  0d80 1037 0080 1216
-8c13 0000 8011 1700
+8c13 0000 8011 17
 ````
 
 * Quote: pushes a byte to the remote working stack, functionally equivalent to
