@@ -34,25 +34,25 @@
 %:QUOT { [ LIT2 :quot -Console/write ] DEO }
 %:UNQT { [ LIT2 :unqt -Console/write ] DEO }
 
-@thrift-hi_ [
-	@on-reset_ ( -> )
-	&quote_
+@ThriftHigh_
+	@:on-reset_ ( -> )
+	&:quote_
 	( |ffe9 )   80 12 16   ( .Console/read DEI )
-	&reset_
+	&:reset_
 	( |ffec )   a0 ff f3   ( ;on-console_ )
 	( |ffef )   80 10 37   ( .Console/vector-hi DEO2 )
 	( |fff2 )   00         ( BRK )
 
-	@on-console_ ( -> )
+	@:on-console_ ( -> )
 	( |fff3 )   80 12 16   ( .Console/read DEI )
 	( |fff6 )   8c         ( JMPk )
-	&unquote_
+	&:unquote_
 	( |fff7 )   13 00 00   ( STR $1 BRK )
-	&quote_
+	&:quote_
     ( |fffa )   02         ( POP )
 	( |fffb )   a0 e9 11   ( [ LIT2 e9 -Console/vector-lo ] DEO )
 	( |fffe )   17 00      ( DEO BRK )
-] &end_
+@ThriftHigh_/end_
 
 ( ## Local Library )
 @emit ( byte -- ) .Console/write DEO JMP2r
@@ -100,7 +100,7 @@
 @:asm/setup ( -- )
 	%:reset_ { ffe9 }
 	[ LIT2 :reset_ ] :asm/set
-	;thrift-hi_ ;thrift-hi_/end_ :asm/copy-blk
+	;ThriftHigh_ ;ThriftHigh_/end_ :asm/copy-blk
     :asm/reset
     [ :LIT2 :reset_ ] !:JMP2
 
