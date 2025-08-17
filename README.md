@@ -83,8 +83,8 @@ All the Varavara device labels are defined for convenience.
 
 ### Remote Assembler
 
-* `:asm/setup`: setups a copy of thrift at `:ff0e`, resets the assembler and
-  jumps to `:ff0e`.
+* `:asm/setup`: setups a copy of thrift at `:ffe9`, resets the assembler to `0100` and
+  jumps to `:ffe9`.
 * `:asm/set ( addr* -- )`: sets `:asm/pointer_` to an absolute address.
 * `:asm/reset ( -- )`: resets `:asm/pointer_` to the default value (`0100`).
 * `:asm/get`: gets the current short value of `:asm/pointer_`.
@@ -204,4 +204,4 @@ Only `:POPk` is implemented, and well, it does nothing as you would expect.
 * `:STR`:    use `:STA`    instead.
 * `:STRk`:   use `:STAk`   instead.
 * `:STR2r`:  use `:STA2r`  instead.
-* `:STR2kr`: use `:STR2kr` instead.
+* `:STR2kr`: use `:STA2kr` instead.
