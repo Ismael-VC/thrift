@@ -25,7 +25,6 @@
     &doty $2 &isdst $1
 
 |00 @ZE $1 @NZ
-|ffe9 @thrift-hii_ &on-reset_ $3 &reset_
 
 |100 @on-reset_ ( -> ) !on-reset
 
@@ -98,10 +97,11 @@
         !/loop1_
 
 @:asm/setup ( -- )
-	;thrift-hii_/on-reset_ :asm/set
+	%:reset_ { ffe9 }
+	[ LIT2 :reset_ ] :asm/set
 	;thrift-hi_ ;thrift-hi_/end_ :asm/copy-blk
     :asm/reset
-    [ :LIT2 =thrift-hii_/reset_ ] !:JMP2
+    [ :LIT2 :reset_ ] !:JMP2
 
 ( ## Remote Pseudo Opcodes )
 @:OPC_ ( op -- )
@@ -135,7 +135,7 @@
 
 ( ### Remaining Opcodes )
 @:INC    [ LIT INC ]    !:OPC_        @:INCk   [ LIT INCk ]   !:OPC_
-@:POP    [ LIT POP ]    !:OPC_        @:POPk   JMP2r
+@:POP    [ LIT POP ]    !:OPC_        @:POPk   [ LIT POPk ]   !:OPC_
 @:NIP    [ LIT NIP ]    !:OPC_
 @:SWP    [ LIT SWP ]    !:OPC_        @:SWPk   [ LIT SWPk ]   !:OPC_
 @:ROT    [ LIT ROT ]    !:OPC_        @:ROTk   [ LIT ROTk ]   !:OPC_
@@ -177,8 +177,6 @@
 @:STH2   [ LIT STH2 ]   !:OPC_        @:STH2k  [ LIT STH2k ]  !:OPC_
 @:LDZ2   [ LIT LDZ2 ]   !:OPC_        @:LDZ2k  [ LIT LDZ2k ]  !:OPC_
 @:STZ2   [ LIT STZ2 ]   !:OPC_        @:STZ2k  [ LIT STZ2k ]  !:OPC_
-@:LDR2   [ LIT LDR2 ]   !:OPC_        @:LDR2k  [ LIT LDR2k ]  !:OPC_
-@:STR2   [ LIT STR2 ]   !:OPC_        @:STR2k  [ LIT STR2k ]  !:OPC_
 @:LDA2   [ LIT LDA2 ]   !:OPC_        @:LDA2k  [ LIT LDA2k ]  !:OPC_
 @:STA2   [ LIT STA2 ]   !:OPC_        @:STA2k  [ LIT STA2k ]  !:OPC_
 @:DEI2   [ LIT DEI2 ]   !:OPC_        @:DEI2k  [ LIT DEI2k ]  !:OPC_
@@ -202,14 +200,9 @@
 @:NEQr   [ LIT NEQr ]   !:OPC_        @:NEQkr  [ LIT NEQkr ]  !:OPC_
 @:GTHr   [ LIT GTHr ]   !:OPC_        @:GTHkr  [ LIT GTHkr ]  !:OPC_
 @:LTHr   [ LIT LTHr ]   !:OPC_        @:LTHkr  [ LIT LTHkr ]  !:OPC_
-@:JMPr   [ LIT JMPr ]   !:OPC_        @:JMPkr  [ LIT JMPkr ]  !:OPC_
-@:JCNr   [ LIT JCNr ]   !:OPC_        @:JCNkr  [ LIT JCNkr ]  !:OPC_
-@:JSRr   [ LIT JSRr ]   !:OPC_        @:JSRkr  [ LIT JSRkr ]  !:OPC_
 @:STHr   [ LIT STHr ]   !:OPC_        @:STHkr  [ LIT STHkr ]  !:OPC_
 @:LDZr   [ LIT LDZr ]   !:OPC_        @:LDZkr  [ LIT LDZkr ]  !:OPC_
 @:STZr   [ LIT STZr ]   !:OPC_        @:STZkr  [ LIT STZkr ]  !:OPC_
-@:LDRr   [ LIT LDRr ]   !:OPC_        @:LDRkr  [ LIT LDRkr ]  !:OPC_
-@:STRr   [ LIT STRr ]   !:OPC_        @:STRkr  [ LIT STRkr ]  !:OPC_
 @:LDAr   [ LIT LDAr ]   !:OPC_        @:LDAkr  [ LIT LDAkr ]  !:OPC_
 @:STAr   [ LIT STAr ]   !:OPC_        @:STAkr  [ LIT STAkr ]  !:OPC_
 @:DEIr   [ LIT DEIr ]   !:OPC_        @:DEIkr  [ LIT DEIkr ]  !:OPC_
