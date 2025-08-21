@@ -1,26 +1,25 @@
-%:on-reset { 0100 }
 @on-reset ( -> )
-    :asm/setup                               ( move thrift to top memory )
+    #ffcb :asm/move                          ( move thrift to the top of RAM )
+	:asm/reset                               ( reset assembler pointer to :0100 )
+	:asm/get                                 ( get assembler pointer value )
     ;FizzBuzz ;FizzBuzz/end :asm/copy-blk    ( copy code )
-    ;Dict :asm/set                           ( absolute pad to ;Dict )
-    ;Dict ;Dict/end :asm/copy-blk            ( copy data )
-    [ :LIT2 :on-reset ] :JMP2                ( jump to :on-reset )
-    BRK
+    [ :LIT 10 ] EMIT2 :JSR2                  ( call fizzbuzz )
+    :DBG [ :LIT 80 ] :HLT                    ( debug and exit )
+	BRK
 
 @FizzBuzz ( -> )
-    #6501
-    &>loop ( length i -- )
-        DUP fizz OVR buzz ORA ?{ DUP <dec> }
-        [ LIT2 0a -Console/error ] DEO
-        INC GTHk ?&>loop
-    POP2 BRK
+	@fizzbuzz ( n -- )
+		#01
+	    &>loop ( length i -- )
+	        DUP fizz OVR buzz ORA ?{ DUP <dec> }
+	        [ LIT2 0a -Console/error ] DEO
+	        INC GTHk ?&>loop
+	    POP2 JMP2r
 
-%MOD ( a b -- a%b ) { DIVk MUL SUB }
-%ERR ( a -- ) { .Console/error DEO }
-@fizz ( n -- ) #03 MOD ?{ #01 ;Dict/fizz !<str> } #00 JMP2r
-@buzz ( n -- ) #05 MOD ?{ #01 ;Dict/buzz !<str> } #00 JMP2r
-@<dec> ( n -- ) DUP #0a DIV /d #0a MOD &d #30 ADD ERR JMP2r
-@<str> ( s* -- ) LDAk ERR INC2 LDAk ?<str> POP2 JMP2r
+	%MOD ( a b -- a%b ) { DIVk MUL SUB }
+	@fizz ( n -- ) #03 MOD ?{ #01 { "Fizz $1 } STH2r !<str> } #00 JMP2r
+	@buzz ( n -- ) #05 MOD ?{ #01 { "Buzz $1 } STH2r !<str> } #00 JMP2r
+	%ERR ( a -- ) { .Console/error DEO }
+	@<dec> ( n -- ) DUP #0a DIV /d #0a MOD &d #30 ADD ERR JMP2r
+	@<str> ( s* -- ) LDAk ERR INC2 LDAk ?<str> POP2 JMP2r
 @FizzBuzz/end
-
-@Dict &fizz "Fizz $1 &buzz "Buzz $1 &end
