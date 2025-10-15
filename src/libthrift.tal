@@ -29,32 +29,20 @@
 |100 @on-reset_ ( -> ) !on-reset
 
 ( ## Thrift Instructions )
-%:quot { 03 }
-%:unqt { -ZE }
+%:quot { -ZE }
+%:unqt { -NZ }
 %:QUOT { [ LIT2 :quot -Console/write ] DEO }
 %:UNQT { [ LIT2 :unqt -Console/write ] DEO }
 
-@ThriftHigh_
-	@:on-reset_ ( -> )
-	&:quote_
-	( |ffe9 )   80 12 16   ( .Console/read DEI )
-	&:reset_
-	( |ffec )   a0 ff f3   ( ;on-console_ )
-	( |ffef )   80 10 37   ( .Console/vector-hi DEO2 )
-	( |fff2 )   00         ( BRK )
-
-	@:on-console_ ( -> )
-	( |fff3 )   80 12 16   ( .Console/read DEI )
-	( |fff6 )   8c         ( JMPk )
-	&:unquote_
-	( |fff7 )   13 00 00   ( STR $1 BRK )
-	&:quote_
-    ( |fffa )   02         ( POP )
-	( |fffb )   a0 e9 11   ( [ LIT2 e9 -Console/vector-lo ] DEO )
-	( |fffe )   17 00      ( DEO BRK )
-@ThriftHigh_/end_
+@thrift_ [
+	c000 4e26 a000 1c38  8026 33a0 0012 3880
+	2133 4000 0380 1216  8016 3280 1037 0080
+	1216 2000 0780 0b32  8010 3700 8000 1300
+	0000 0000 00 
+] &end_
 
 ( ## Local Library )
+@HLT ( code -> ) .System/state DEO BRK
 @emit ( byte -- ) .Console/write DEO JMP2r
 @EMIT ( byte -- :byte ) :QUOT !emit
 @EMIT2 ( short -- :short ) SWP EMIT !EMIT
@@ -63,11 +51,12 @@
 %:dbg ( -- ) { :quot -NZ :quot -System/debug :quot DEO :unqt }
 %:emit ( :byte -- ) { :quot -Console/write :quot DEO :unqt }
 @:DBG ( -- ) [ :LIT2 -NZ -System/debug ] !:DEO
+@:HLT ( :code -> ) [ :LIT -System/state ] :DEO !:BRK
 @:EMIT ( :byte -- byte ) [ :LIT -Console/write ] !:DEO
 @:EMIT2 ( :short -- short ) :SWP :EMIT !:EMIT
 @:asm/reset ( -- ) ;on-reset_ ( >> )
 @:asm/set ( addr* -- ) ,/pointer_ STR2 JMP2r
-@:asm/get ( -- addr* ) ,/pointer_ LDA2 JMP2r
+@:asm/get ( -- addr* ) ,/pointer_ LDR2 JMP2r
 @:asm/send-len ( start* len* -- ) ADD2k NIP2 ( >> )
 @:asm/send-blk ( start* end* -- ) ;emit !/for-each
 @:asm/copy-len ( start* len* -- ) ADD2k NIP2 ( >> )
@@ -97,12 +86,10 @@
         ;/buffer_ STH2r :asm/copy-len
         !/loop1_
 
-@:asm/setup ( -- )
-	%:reset_ { ffe9 }
-	[ LIT2 :reset_ ] :asm/set
-	;ThriftHigh_ ;ThriftHigh_/end_ :asm/copy-blk
-    :asm/reset
-    [ :LIT2 :reset_ ] !:JMP2
+@:asm/move ( addr* -- )
+	DUP2 :asm/set
+    ;thrift_ ;thrift_/end_ :asm/copy-blk
+    EMIT2 !:JMP2
 
 ( ## Remote Pseudo Opcodes )
 @:OPC_ ( op -- )
@@ -136,7 +123,7 @@
 
 ( ### Remaining Opcodes )
 @:INC    [ LIT INC ]    !:OPC_        @:INCk   [ LIT INCk ]   !:OPC_
-@:POP    [ LIT POP ]    !:OPC_        @:POPk   [ LIT POPk ]   !:OPC_
+@:POP    [ LIT POP ]    !:OPC_        @:POPk   JMP2r
 @:NIP    [ LIT NIP ]    !:OPC_
 @:SWP    [ LIT SWP ]    !:OPC_        @:SWPk   [ LIT SWPk ]   !:OPC_
 @:ROT    [ LIT ROT ]    !:OPC_        @:ROTk   [ LIT ROTk ]   !:OPC_
@@ -178,6 +165,8 @@
 @:STH2   [ LIT STH2 ]   !:OPC_        @:STH2k  [ LIT STH2k ]  !:OPC_
 @:LDZ2   [ LIT LDZ2 ]   !:OPC_        @:LDZ2k  [ LIT LDZ2k ]  !:OPC_
 @:STZ2   [ LIT STZ2 ]   !:OPC_        @:STZ2k  [ LIT STZ2k ]  !:OPC_
+@:LDR2   [ LIT LDR2 ]   !:OPC_        @:LDR2k  [ LIT LDR2k ]  !:OPC_
+@:STR2   [ LIT STR2 ]   !:OPC_        @:STR2k  [ LIT STR2k ]  !:OPC_
 @:LDA2   [ LIT LDA2 ]   !:OPC_        @:LDA2k  [ LIT LDA2k ]  !:OPC_
 @:STA2   [ LIT STA2 ]   !:OPC_        @:STA2k  [ LIT STA2k ]  !:OPC_
 @:DEI2   [ LIT DEI2 ]   !:OPC_        @:DEI2k  [ LIT DEI2k ]  !:OPC_
@@ -201,9 +190,14 @@
 @:NEQr   [ LIT NEQr ]   !:OPC_        @:NEQkr  [ LIT NEQkr ]  !:OPC_
 @:GTHr   [ LIT GTHr ]   !:OPC_        @:GTHkr  [ LIT GTHkr ]  !:OPC_
 @:LTHr   [ LIT LTHr ]   !:OPC_        @:LTHkr  [ LIT LTHkr ]  !:OPC_
+@:JMPr   [ LIT JMPr ]   !:OPC_        @:JMPkr  [ LIT JMPkr ]  !:OPC_
+@:JCNr   [ LIT JCNr ]   !:OPC_        @:JCNkr  [ LIT JCNkr ]  !:OPC_
+@:JSRr   [ LIT JSRr ]   !:OPC_        @:JSRkr  [ LIT JSRkr ]  !:OPC_
 @:STHr   [ LIT STHr ]   !:OPC_        @:STHkr  [ LIT STHkr ]  !:OPC_
 @:LDZr   [ LIT LDZr ]   !:OPC_        @:LDZkr  [ LIT LDZkr ]  !:OPC_
 @:STZr   [ LIT STZr ]   !:OPC_        @:STZkr  [ LIT STZkr ]  !:OPC_
+@:LDRr   [ LIT LDRr ]   !:OPC_        @:LDRkr  [ LIT LDRkr ]  !:OPC_
+@:STRr   [ LIT STRr ]   !:OPC_        @:STRkr  [ LIT STRkr ]  !:OPC_
 @:LDAr   [ LIT LDAr ]   !:OPC_        @:LDAkr  [ LIT LDAkr ]  !:OPC_
 @:STAr   [ LIT STAr ]   !:OPC_        @:STAkr  [ LIT STAkr ]  !:OPC_
 @:DEIr   [ LIT DEIr ]   !:OPC_        @:DEIkr  [ LIT DEIkr ]  !:OPC_
@@ -247,40 +241,40 @@
 @:SFT2r  [ LIT SFT2r ]  !:OPC_        @:SFT2kr [ LIT SFT2kr ] !:OPC_
 
 @HexDump
-	%\e { 1b }
-	%\s { 20 }
-	%\n { 0a }
-	%\0 { 00 }
+%\e { 1b }
+%\s { 20 }
+%\n { 0a }
+%\0 { 00 }
 
-	%newline { [ LIT2 \n    -Console/error ] DEO }
-	%space   { [ LIT2 \s    -Console/error ] DEO }
-	%bar     { [ LIT2 "|    -Console/error ] DEO }
-	%l-paren { [ LIT2 28    -Console/error ] DEO }
-	%r-paren { [ LIT2 29    -Console/error ] DEO }
+%newline { [ LIT2 \n    -Console/error ] DEO }
+%space   { [ LIT2 \s    -Console/error ] DEO }
+%bar     { [ LIT2 "|    -Console/error ] DEO }
+%l-paren { [ LIT2 28    -Console/error ] DEO }
+%r-paren { [ LIT2 29    -Console/error ] DEO }
 
-	@print/memory ( address* -- )
-	    bar STH2k DUP2 /short space space #0000
-	    &memory/loop-bytes ( addr* i* | addr* -- )
-	        ADD2k LDA /byte
-	        DUP #0f AND DUP #07 NEQ ?{ space }
-	        #0f NEQ ?{
-	            space space l-paren space
-	            ADD2k DUP2 INC2 SWP2 #000f SUB2
-	            &memory/loop-chars
-	                LDAk DUPk [ LIT \s ] GTH SWP #7f LTH AND ?{
-	                    POP [ LIT ". ] }
-	                .Console/error DEO INC2 GTH2k ?/memory/loop-chars
-	            POP2 POP2
-	            space r-paren newline DUP2 INC2 STH2kr ADD2
-	            bar /short space }
-	        space INC NEQk ?/memory/loop-bytes
-	    POP2 POP2 POP2r newline JMP2r
+@print/memory ( address* -- )
+    bar STH2k DUP2 /short space space #0000
+    &memory/loop-bytes ( addr* i* | addr* -- )
+        ADD2k LDA /byte
+        DUP #0f AND DUP #07 NEQ ?{ space }
+        #0f NEQ ?{
+            space space l-paren space
+            ADD2k DUP2 INC2 SWP2 #000f SUB2
+            &memory/loop-chars
+                LDAk DUPk [ LIT \s ] GTH SWP #7f LTH AND ?{
+                    POP [ LIT ". ] }
+                .Console/error DEO INC2 GTH2k ?/memory/loop-chars
+            POP2 POP2
+            space r-paren newline DUP2 INC2 STH2kr ADD2
+            bar /short space }
+        space INC NEQk ?/memory/loop-bytes
+    POP2 POP2 POP2r newline JMP2r
 
-	@print/short ( short* -- ) SWP /byte ( >> )
-	@print/byte ( byte -- ) DUP #04 SFT /nibble ( >> )
-	@print/nibble ( byte -: )
-	    #0f AND DUP #09 GTH #27 MUL ADD [ LIT "0 ] ADD .Console/error DEO
-	    JMP2r
+@print/short ( short* -- ) SWP /byte ( >> )
+@print/byte ( byte -- ) DUP #04 SFT /nibble ( >> )
+@print/nibble ( byte -: )
+    #0f AND DUP #09 GTH #27 MUL ADD [ LIT "0 ] ADD .Console/error DEO
+    JMP2r
 @HexDump/end
 
 @:asm/buffer_ $100
