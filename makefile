@@ -1,6 +1,6 @@
 build:
-	@ drifblim src/libthrift.tal roms/libthrift.rom
-	@ drifblim src/thrift.tal roms/thrift.rom
+	@ uxnasm src/libthrift.tal roms/libthrift.rom
+	@ uxnasm src/thrift.tal roms/thrift.rom
 
 run: build
 	@bash -c '\
@@ -23,7 +23,8 @@ busybox: build
 	uxncli roms/lavish.rom | uxncli roms/thrift.rom
 
 test:
-	@ drifblim etc/fizzbuzz.tal roms/fizzbuzz.rom
+	@ uxnasm etc/fizzbuzz.tal roms/fizzbuzz.rom
+	uxncli roms/fizzbuzz.rom
 
 clean:
 	@ rm -rf roms

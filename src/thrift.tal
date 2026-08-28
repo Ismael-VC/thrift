@@ -1,25 +1,15 @@
-( Thrift is a 2-instruction "Forth", inspired by "THRee-Instruction ForTh".
+( Thrift OS based on "THRee Instruction ForTh".
 
-  "To quote, or to unquote, that is the question." -- Not William Shakespeare. )
+quote   -> zero
+unquote -> non zero )
 
-%PC   ( -- pc* )   { [ LITr 00 JSRr ] }
-%EVAL ( opc -- )   { [ #00 STR $1 ] }
-%READ ( -- byte )  { .Input/read DEI }
-%VECT ( addr* -- ) { LDR2 .Input/vector DEO2 }
+|10 @Console/vector $2  &read $1
 
-|10 @Input [ &vector $2  &read $1 ]
+%READ ( -- byte  ) { .Console/read   DEI  }
+%VECT ( addr* -- ) { .Console/vector DEO2 }
 
 |100
-@on-reset ( -> ) 
-	PC DUP2 
-	#001c ADD2 ,input STR2 
-	#0012 ADD2 ,quote STR2 
-	!set-input
-
-@on-quote   ( -> ) READ ( >> )
-@set-input  ( -> ) ,input VECT BRK
-@on-input   ( -> ) READ ?on-unquote
-@set-quote  ( -> ) ,quote VECT BRK
-@on-unquote ( -> ) EVAL BRK
-
-[ @input $2  @quote $2 ]
+@on-reset   ( -> ) ;on-console VECT BRK
+@on-quote   ( -> ) READ !on-reset
+@on-console ( -> ) READ ?on-unquote ;on-quote VECT BRK
+@on-unquote ( -> ) [ #00 STR $1 ] BRK

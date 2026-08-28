@@ -1,0 +1,22 @@
+(
+	quote   -> 03
+	unquote -> 00
+)
+
+@on-reset ( -> )
+|0100   40 00 03   ( !/reset )
+&quote
+|0103   80 12 16   ( .Console/read DEI ( >> ) )
+&reset
+|0106   a0 01 0d   ( ;on-console )
+|0109   80 10 37   ( .Console/vector-hi DEO2 )
+|010c   00         ( BRK )
+
+@on-console ( -> )
+|010d   80 12 16   ( .Console/read DEI )
+|0110   8c         ( JMPk )
+&unquote
+|0111   13 00 00   ( STR $1 BRK )
+&quote
+|0114   80 11 17   ( .Console/vector-lo DEO )
+|0117   00         ( BRK )
