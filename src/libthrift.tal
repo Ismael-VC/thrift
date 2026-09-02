@@ -29,16 +29,22 @@
 |100 @on-reset_ ( -> ) !on-reset
 
 ( ## Thrift Instructions )
-%:quot { -ZE }
-%:unqt { -NZ }
+%:quot { 03 }
+%:unqt { -ZE }
 %:QUOT { [ LIT2 :quot -Console/write ] DEO }
 %:UNQT { [ LIT2 :unqt -Console/write ] DEO }
 
+(
 @thrift_ [
 	c000 4e26 a000 1c38  8026 33a0 0012 3880
 	2133 4000 0380 1216  8016 3280 1037 0080
 	1216 2000 0780 0b32  8010 3700 8000 1300
-	0000 0000 00 
+	0000 0000 00
+] &end_ )
+
+@thrift_ [
+	4000 0380 1216 a001  0d80 1037 0080 1216
+	8c13 0000 8011 1700
 ] &end_
 
 ( ## Local Library )

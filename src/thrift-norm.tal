@@ -1,0 +1,15 @@
+( Thrift OS based on "THRee Instruction ForTh".
+
+quote   -> zero
+unquote -> non zero )
+
+|10 @Console/vector $2  &read $1
+
+%READ ( -- byte  ) { .Console/read   DEI  }
+%VECT ( addr* -- ) { .Console/vector DEO2 }
+
+|100
+@on-reset   ( -> ) ;on-console VECT BRK
+@on-quote   ( -> ) READ !on-reset
+@on-console ( -> ) READ ?on-unquote ;on-quote VECT BRK
+@on-unquote ( -> ) [ #00 STR $1 ] BRK

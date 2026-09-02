@@ -1,9 +1,9 @@
 @on-reset ( -> )
-    #ffcb :asm/move                          ( move thrift to the top of RAM )
-	:asm/reset                               ( reset assembler pointer to :0100 )
-	:asm/get                                 ( get assembler pointer value )
+    ( #ffcb :asm/move )                      ( move thrift to the top of RAM )
+	( :asm/reset )                           ( reset assembler pointer to :0100 )
+	#0118 :asm/set                           ( get assembler pointer value )
     ;FizzBuzz ;FizzBuzz/end :asm/copy-blk    ( copy code )
-    [ :LIT 10 ] EMIT2 :JSR2                  ( call fizzbuzz )
+    [ :LIT 10 ] [ :LIT2 0118 ] :JSR2         ( call fizzbuzz )
     :DBG [ :LIT 80 ] :HLT                    ( debug and exit )
 	BRK
 

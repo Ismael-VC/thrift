@@ -25,4 +25,4 @@ unquote -> non zero )
 @set-quote  ( -> ) ,quote VECT BRK
 @on-unquote ( -> ) EVAL BRK
 
-[ @input $2  @quote $2 ]
+[ @input 0000  @quote 0000 ]
